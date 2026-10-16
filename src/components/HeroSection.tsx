@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { JapacLanguage } from '../types';
 import { translations } from '../i18n/translations';
+import { WavyBackground } from './WavyBackground';
 
 interface HeroSectionProps {
   currentLang: JapacLanguage;
@@ -33,18 +34,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const t = translations[currentLang] || translations.en;
   const [activeInteractiveTab, setActiveInteractiveTab] = useState<'prepare' | 'handover' | 'recover'>('prepare');
   const [simulatedReleased, setSimulatedReleased] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   return (
     <section
       role="region"
       aria-label="Platform Hero and Overview"
       className="relative bg-[#f8f7f4] border-b border-[#1a1a1a]/15 text-[#1a1a1a] overflow-hidden"
+      onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
     >
-      {/* Subtle Archival Grid Background Texture */}
-      <div
-        className="absolute inset-0 opacity-[0.035] pointer-events-none bg-[radial-gradient(#1a1a1a_1px,transparent_1px)] [background-size:24px_24px]"
-        aria-hidden="true"
-      />
+      <WavyBackground mouseX={mousePos.x} mouseY={mousePos.y} />
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12 lg:py-16 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
