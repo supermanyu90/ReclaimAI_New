@@ -17,12 +17,14 @@ interface AuthDemoGatewayProps {
   currentLang: JapacLanguage;
   onSelectMode: (mode: 'demo' | 'auth') => void;
   onSignIn: () => void;
+  authError?: string | null;
 }
 
 export const AuthDemoGateway: React.FC<AuthDemoGatewayProps> = ({
   currentLang,
   onSelectMode,
   onSignIn,
+  authError,
 }) => {
   const t = translations[currentLang] || translations.en;
 
@@ -50,6 +52,12 @@ export const AuthDemoGateway: React.FC<AuthDemoGatewayProps> = ({
           <p className="font-mono-meta text-xs sm:text-sm text-[#1a1a1a]/70 max-w-xl mx-auto">
             {t.tagline} • Choose how you wish to enter the platform.
           </p>
+
+          {authError && (
+            <div className="p-4 rounded-xs bg-amber-50 border border-amber-300 text-amber-900 font-mono-meta text-xs text-center max-w-md mx-auto">
+              {authError}
+            </div>
+          )}
         </div>
 
         {/* Mode Cards Grid */}

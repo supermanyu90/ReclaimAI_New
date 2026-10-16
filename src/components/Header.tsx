@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Left: Brand in Cormorant Garamond */}
         <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
           <div
-            onClick={() => onSelectTab('workspace')}
+            onClick={() => onSelectTab('overview')}
             className="cursor-pointer font-serif-display text-3xl font-semibold italic tracking-tight text-[#1a1a1a] hover:opacity-80 transition-opacity"
           >
             {t.appName}

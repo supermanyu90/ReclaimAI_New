@@ -54,6 +54,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [cloudSynced, setCloudSynced] = useState<boolean>(false);
   const [appMode, setAppMode] = useState<'gateway' | 'demo' | 'auth'>('gateway');
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     let unsubscribeAssets: (() => void) | null = null;
@@ -63,6 +64,7 @@ export default function App() {
       if (currentUser) {
         setCloudSynced(true);
         setAppMode('auth');
+        setAuthError(null);
         await syncUserProfile(currentUser);
 
         unsubscribeAssets = subscribeUserAssets(
@@ -94,10 +96,18 @@ export default function App() {
   }, []);
 
   const handleSignIn = async () => {
+    setAuthError(null);
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err: any) {
-      console.error('Google Sign-In Error:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setAuthError('Sign-in popup was closed before completing. Click Sign In again when ready.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setAuthError('Sign-in popup was blocked by browser. Please allow popups for authentication.');
+      } else {
+        setAuthError(err.message || 'Authentication error occurred.');
+      }
+      console.warn('Google Sign-In Handled:', err.code || err);
     }
   };
 
@@ -297,6 +307,7 @@ export default function App() {
           currentLang={currentLang}
           onSelectMode={(mode) => setAppMode(mode)}
           onSignIn={handleSignIn}
+          authError={authError}
         />
       )}
 
