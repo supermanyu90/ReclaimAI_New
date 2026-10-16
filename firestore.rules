@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidAsset(data) {
+      return data.keys().hasAll(['id', 'ownerId', 'label', 'institutionName', 'amountMinor', 'currency', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.ownerId == request.auth.uid &&
+        data.label is string && data.label.size() <= 150 &&
+        data.institutionName is string && data.institutionName.size() <= 150 &&
+        data.amountMinor is number &&
+        data.currency is string && data.currency.size() <= 10;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && incoming().id == userId;
+      allow update: if isOwner(userId) && incoming().id == userId;
+      allow delete: if false;
+    }
+
+    // Assets Collection
+    match /assets/{assetId} {
+      allow get: if isOwner(existing().ownerId);
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isOwner(incoming().ownerId) && isValidId(assetId) && isValidAsset(incoming());
+      allow update: if isOwner(existing().ownerId) && incoming().ownerId == existing().ownerId && isValidAsset(incoming());
+      allow delete: if isOwner(existing().ownerId);
+    }
+
+    // Handover Cases Collection
+    match /handoverCases/{caseId} {
+      allow get: if isOwner(existing().ownerId);
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isOwner(incoming().ownerId) && isValidId(caseId);
+      allow update: if isOwner(existing().ownerId) && incoming().ownerId == existing().ownerId;
+      allow delete: if isOwner(existing().ownerId);
+    }
+  }
+}

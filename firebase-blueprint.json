@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with Google Auth",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "createdAt"]
+    },
+    "Asset": {
+      "title": "Asset",
+      "description": "Financial asset record owned by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "label": { "type": "string", "maxLength": 150 },
+        "institutionName": { "type": "string", "maxLength": 150 },
+        "assetType": { "type": "string", "maxLength": 50 },
+        "currency": { "type": "string", "maxLength": 10 },
+        "amountMinor": { "type": "number" },
+        "maskedReference": { "type": "string", "maxLength": 100 },
+        "nomineeName": { "type": "string", "maxLength": 150 },
+        "documentLocation": { "type": "string", "maxLength": 250 },
+        "jurisdiction": { "type": "string", "maxLength": 10 },
+        "status": { "type": "string", "enum": ["draft", "confirmed", "verified", "archived"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerId", "label", "institutionName", "amountMinor", "currency", "createdAt"]
+    },
+    "HandoverCase": {
+      "title": "HandoverCase",
+      "description": "Handover case protocol for estate release",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "beneficiaryName": { "type": "string", "maxLength": 150 },
+        "beneficiaryEmail": { "type": "string", "maxLength": 150 },
+        "status": { "type": "string", "enum": ["idle", "pending_review", "approved", "rejected", "hold"] },
+        "requiredSignatures": { "type": "number" },
+        "currentSignatures": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerId", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles indexed by UID"
+    },
+    "/assets/{assetId}": {
+      "schema": "Asset",
+      "description": "Top-level financial asset documents partitioned by ownerId"
+    },
+    "/handoverCases/{caseId}": {
+      "schema": "HandoverCase",
+      "description": "Handover cases partitioned by ownerId"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ReclaimAI — Financial Legacy & Handover Platform",
+  "description": "Conversation-first financial legacy platform across JAPAC: Prepare, Handover, and Recover with Family Asset Passports and multi-party review governance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

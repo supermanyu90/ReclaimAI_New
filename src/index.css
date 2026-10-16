@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f8f7f4;
+  --ink: #1a1a1a;
+  --accent: #4a5d4e;
+  --line: rgba(26, 26, 26, 0.09);
+  --meta: rgba(26, 26, 26, 0.5);
+  --card-bg: #ffffff;
+  --alert-ochre: #b54708;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.font-serif-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-mono-meta {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+::selection {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Print Styles for Official Family Asset Passport and Labels */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  header,
+  footer,
+  nav,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
