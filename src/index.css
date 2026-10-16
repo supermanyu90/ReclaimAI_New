@@ -1,30 +1,29 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,500;1,700&family=Inter:wght@300;400&family=Space+Mono&display=swap');
 
 :root {
-  --bg: #f8f7f4;
+  --bg: #fdfcf8;
   --ink: #1a1a1a;
-  --accent: #4a5d4e;
-  --line: rgba(26, 26, 26, 0.09);
-  --meta: rgba(26, 26, 26, 0.5);
-  --card-bg: #ffffff;
-  --alert-ochre: #b54708;
+  --accent: #b4916c;
+  --ink-faint: rgba(26, 26, 26, 0.08);
+  --ink-dim: rgba(26, 26, 26, 0.6);
 }
 
 @layer base {
   body {
     background-color: var(--bg);
     color: var(--ink);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 }
 
 .font-serif-display {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .font-mono-meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', monospace;
 }
 
 ::selection {
@@ -40,9 +39,7 @@
   }
 
   header,
-  footer,
-  nav,
-  button,
+  aside,
   .no-print {
     display: none !important;
   }

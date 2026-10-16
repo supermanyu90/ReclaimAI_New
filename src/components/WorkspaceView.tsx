@@ -20,6 +20,8 @@ import { translations } from '../i18n/translations';
 import { RelationshipGraph } from './RelationshipGraph';
 import { AssetAuditTrailModal } from './AssetAuditTrailModal';
 import { formatCurrency, formatDate } from '../utils/formatters';
+import { auth } from '../lib/firebase';
+import { createFirestoreAsset } from '../lib/firestoreService';
 
 interface WorkspaceViewProps {
   currentLang: JapacLanguage;
@@ -223,8 +225,41 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
               </h3>
             </div>
 
-            {/* Filter pills */}
+            {/* Filter pills and Import/Export */}
             <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono-meta">
+              <input type="file" id="import-assets" className="hidden" accept=".json" onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file && auth.currentUser) {
+                  const reader = new FileReader();
+                  reader.onload = async (event) => {
+                    const content = event.target?.result as string;
+                    try {
+                      const importedAssets = JSON.parse(content);
+                      for (const asset of importedAssets) {
+                        if (asset.label && asset.institutionName) {
+                          await createFirestoreAsset(asset, auth.currentUser!.uid);
+                        }
+                      }
+                      alert('Assets imported successfully!');
+                    } catch (err) {
+                      console.error('Import error:', err);
+                      alert('Failed to import assets. Please check the JSON format.');
+                    }
+                  };
+                  reader.readAsText(file);
+                }
+              }} />
+              <label htmlFor="import-assets" className="px-2.5 py-1 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/60 hover:text-[#1a1a1a] border border-[#1a1a1a]/10">Import</label>
+              <button onClick={() => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assets));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "reclaimai_assets.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+              }} className="px-2.5 py-1 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/60 hover:text-[#1a1a1a] border border-[#1a1a1a]/10">Export</button>
+
               {['all', 'savings', 'fixed_deposit', 'mutual_fund', 'insurance', 'pension_cpf'].map((typeKey) => (
                 <button
                   key={typeKey}

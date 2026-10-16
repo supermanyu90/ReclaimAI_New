@@ -1,20 +1,8 @@
-import React, { useState } from 'react';
-import {
-  ArrowRight,
-  ShieldCheck,
-  Lock,
-  CheckCircle2,
-  FileText,
-  QrCode,
-  Sparkles,
-  Eye,
-  Building,
-  Key,
-  ChevronRight,
-} from 'lucide-react';
+import React from 'react';
 import { JapacLanguage } from '../types';
 import { translations } from '../i18n/translations';
 import { WavyBackground } from './WavyBackground';
+import { CursorRing } from './CursorRing';
 
 interface HeroSectionProps {
   currentLang: JapacLanguage;
@@ -32,290 +20,66 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenVoice,
 }) => {
   const t = translations[currentLang] || translations.en;
-  const [activeInteractiveTab, setActiveInteractiveTab] = useState<'prepare' | 'handover' | 'recover'>('prepare');
-  const [simulatedReleased, setSimulatedReleased] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   return (
-    <section
-      role="region"
-      aria-label="Platform Hero and Overview"
-      className="relative bg-[#f8f7f4] border-b border-[#1a1a1a]/15 text-[#1a1a1a] overflow-hidden"
-      onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
-    >
-      <WavyBackground mouseX={mousePos.x} mouseY={mousePos.y} />
+    <div className="relative min-h-screen flex items-center justify-center">
+      <WavyBackground />
+      <CursorRing />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12 lg:py-16 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+      <div className="outer-wrap relative z-10 w-full max-w-[1400px] h-[860px] grid grid-cols-2 grid-rows-[auto_1fr_auto] border border-[#1a1a1a]/10 bg-[#fdfcf8]/80 backdrop-blur-3xl p-[60px] gap-[60px]">
+        <header className="col-span-2 flex justify-between items-end pb-[40px] border-b border-[#1a1a1a]">
+          <div className="logo font-serif-display italic font-medium text-[2.8rem] tracking-tighter">ReclaimAI</div>
+          <div className="header-meta text-right font-mono text-[0.65rem] leading-relaxed uppercase tracking-[0.1em] text-[#1a1a1a]/60">
+            Protocol: JAPAC.2024<br />
+            Node: Active_Cloud_01<br />
+            Status: AES-256 Encrypted
+          </div>
+        </header>
+
+        <main className="content-left flex flex-col justify-center">
+          <span className="label font-mono text-[0.7rem] text-[#b4916c] uppercase tracking-[0.2em] mb-[24px] block">Universal Estate Registry</span>
+          <h1 className="font-serif-display italic font-light text-[5.5rem] leading-[1.05] mb-[40px]">Legacies,<br/>refined and<br/>protected.</h1>
+          <p className="hero-desc text-[1.25rem] leading-[1.6] text-[#1a1a1a]/60 max-w-[480px] mb-[60px]">The modern path to financial claims. Simplified records, AI concierge assistance, and physical asset orchestration.</p>
           
-          {/* LEFT COLUMN: Visual Hierarchy & Conversion Engine (7 Cols on desktop) */}
-          <div className="lg:col-span-7 space-y-6 text-left">
-            
-            {/* Trust Pill / Category Identifier */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-[#1a1a1a]/15 rounded-xs shadow-xs font-mono-meta text-[11px] uppercase tracking-widest text-[#1a1a1a]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4a5d4e] animate-pulse" aria-hidden="true" />
-              <span className="font-semibold">Financial Legacy Infrastructure</span>
-              <span className="text-[#1a1a1a]/30">•</span>
-              <span className="text-[#1a1a1a]/60">JAPAC Compliant</span>
+          <div className="btn-stack flex flex-col gap-[12px] items-start">
+            <button onClick={onGetStarted} className="btn-prime font-mono text-[0.8rem] bg-[#1a1a1a] text-[#fdfcf8] px-[40px] py-[20px] cursor-pointer border-none">LAUNCH THE WORKSPACE</button>
+            <button onClick={onOpenVoice} className="btn font-mono text-[0.8rem] py-[12px] text-[#1a1a1a] border-b border-[#1a1a1a] cursor-pointer bg-transparent border-t-0 border-l-0 border-r-0">REQUEST VOICE DEMO MODE —</button>
+          </div>
+        </main>
+
+        <section className="content-right grid grid-rows-2 gap-[40px]">
+          <div className="process-grid grid grid-cols-3 gap-[20px]">
+            {[
+                { title: '[01] PREPARE', desc: 'Maintain one golden record. Capture deposits, policies, and property deeds.' },
+                { title: '[02] HANDOVER', desc: 'Governed family access. Unlocked via dual independent sign-off.' },
+                { title: '[03] RECOVER', desc: 'Automated claim matching across regional registries.' }
+            ].map(item => (
+                <div key={item.title} className="process-item p-[20px] border border-[#1a1a1a]/10">
+                    <h4 className="font-mono text-[0.7rem] text-[#b4916c] mb-[12px]">{item.title}</h4>
+                    <p className="text-[0.85rem] text-[#1a1a1a]/60 leading-[1.5]">{item.desc}</p>
+                </div>
+            ))}
+          </div>
+
+          <div className="registry-panel bg-[#1a1a1a] text-[#fdfcf8] p-[40px] relative">
+            <span className="label font-mono text-[0.7rem] text-[#fdfcf8]/40 uppercase tracking-[0.2em] mb-[24px] block">JAPAC Ledger State</span>
+            <div className="tag-list grid grid-cols-2 gap-[12px] mt-[24px]">
+              {['IND_7730: FD VERIFIED', 'JPN_0041: REIT LINKED', 'HKG_9921: MPF SYNCED', 'SGP_1102: CPF CHECKED'].map(tag => (
+                  <div key={tag} className="tag-item font-mono text-[0.6rem] border border-white/10 p-[10px] opacity-80">{tag}</div>
+              ))}
             </div>
-
-            {/* Editorial Serif Headline */}
-            <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold italic text-[#1a1a1a] tracking-tight leading-[1.02]">
-              {t.heroHeadline}
-            </h1>
-
-            {/* Supporting Subheading */}
-            <p className="text-sm sm:text-base text-[#1a1a1a]/80 max-w-xl font-sans leading-relaxed font-normal">
-              {t.heroSubheading}
+            <p className="mt-[30px] text-[0.75rem] leading-[1.6] opacity-60">
+              Compliant infrastructure for the modern family. Multi-sig governance ensures zero-knowledge privacy.
             </p>
-
-            {/* CTAs: Conversion focused */}
-            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 flex-wrap">
-              {/* Primary CTA */}
-              <button
-                onClick={onGetStarted}
-                className="group relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] font-mono-meta text-xs uppercase tracking-widest font-semibold transition-all duration-150 cursor-pointer shadow-xs active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1a1a]"
-              >
-                <span>Launch Estate Workspace</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
-              </button>
-
-              {/* Voice Concierge CTA */}
-              {onOpenVoice && (
-                <button
-                  onClick={onOpenVoice}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] font-mono-meta text-xs uppercase tracking-widest font-semibold transition-all duration-150 cursor-pointer shadow-xs active:translate-y-px border border-white/20"
-                >
-                  <Sparkles className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-                  <span>Voice Concierge (Live 3.8)</span>
-                </button>
-              )}
-
-              {/* Secondary CTA */}
-              <button
-                onClick={onExplorePassport}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white hover:bg-[#f0eee9] text-[#1a1a1a] border border-[#1a1a1a]/25 font-mono-meta text-xs uppercase tracking-widest font-semibold transition-all duration-150 cursor-pointer shadow-xs active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a1a1a]"
-              >
-                <FileText className="w-4 h-4 text-[#1a1a1a]/70" aria-hidden="true" />
-                <span>View Sample Passport</span>
-              </button>
-            </div>
-
-            {/* Trust Badges Bar */}
-            <div className="pt-6 border-t border-[#1a1a1a]/10 grid grid-cols-3 gap-4 font-mono-meta text-xs">
-              <div className="space-y-0.5">
-                <span className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wider block">Governance</span>
-                <span className="font-bold text-[#1a1a1a] text-xs">2-Key Multi-Sig</span>
-              </div>
-              <div className="space-y-0.5">
-                <span className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wider block">Physical Anchors</span>
-                <span className="font-bold text-[#1a1a1a] text-xs">Level-H QR Seals</span>
-              </div>
-              <div className="space-y-0.5">
-                <span className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wider block">Coverage</span>
-                <span className="font-bold text-[#1a1a1a] text-xs">9 JAPAC Jurisdictions</span>
-              </div>
-            </div>
-
           </div>
+        </section>
 
-          {/* RIGHT COLUMN: Interactive Product Storytelling Mockup (5 Cols on desktop) */}
-          <div className="lg:col-span-5 relative">
-            {/* Frame containing the interactive device / archival card */}
-            <div className="relative bg-white rounded-xs border-2 border-[#1a1a1a] shadow-lg p-5 sm:p-6 space-y-4">
-              
-              {/* Top Tab Navigator of the Mockup: Prepare → Handover → Recover */}
-              <div className="flex items-center justify-between border-b border-[#1a1a1a]/10 pb-3">
-                <div className="flex gap-1.5 font-mono-meta text-[10px] uppercase tracking-wider">
-                  <button
-                    onClick={() => setActiveInteractiveTab('prepare')}
-                    className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer ${
-                      activeInteractiveTab === 'prepare'
-                        ? 'bg-[#1a1a1a] text-[#f8f7f4] font-bold'
-                        : 'text-[#1a1a1a]/50 hover:text-[#1a1a1a]'
-                    }`}
-                  >
-                    1. Prepare
-                  </button>
-                  <button
-                    onClick={() => setActiveInteractiveTab('handover')}
-                    className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer ${
-                      activeInteractiveTab === 'handover'
-                        ? 'bg-[#1a1a1a] text-[#f8f7f4] font-bold'
-                        : 'text-[#1a1a1a]/50 hover:text-[#1a1a1a]'
-                    }`}
-                  >
-                    2. Handover
-                  </button>
-                  <button
-                    onClick={() => setActiveInteractiveTab('recover')}
-                    className={`px-2.5 py-1 rounded-xs transition-colors cursor-pointer ${
-                      activeInteractiveTab === 'recover'
-                        ? 'bg-[#1a1a1a] text-[#f8f7f4] font-bold'
-                        : 'text-[#1a1a1a]/50 hover:text-[#1a1a1a]'
-                    }`}
-                  >
-                    3. Recover
-                  </button>
-                </div>
-
-                <span className="font-mono-meta text-[9px] uppercase px-1.5 py-0.5 bg-[#f8f7f4] border border-[#1a1a1a]/15 text-[#1a1a1a]/60">
-                  Interactive Preview
-                </span>
-              </div>
-
-              {/* TAB 1: PREPARE (Conversational Logging & Archival Passport) */}
-              {activeInteractiveTab === 'prepare' && (
-                <div className="space-y-3.5 animate-in fade-in duration-200">
-                  <div className="p-3 bg-[#f8f7f4] border border-[#1a1a1a]/10 rounded-xs space-y-1.5">
-                    <div className="flex items-center justify-between font-mono-meta text-[9px] uppercase text-[#1a1a1a]/50">
-                      <span>Conversational Ingestion</span>
-                      <span className="text-[#4a5d4e] font-bold">OCR Verified 98%</span>
-                    </div>
-                    <div className="text-xs text-[#1a1a1a] font-serif-display text-base font-semibold">
-                      "I opened a ₹5,00,000 3-year FD at State Bank"
-                    </div>
-                    <div className="text-[11px] font-mono-meta text-[#1a1a1a]/70 flex items-center gap-1.5 pt-1">
-                      <Building className="w-3 h-3 text-[#1a1a1a]/50" />
-                      <span>Sagar Bharat Bank • Fixed Deposit #7730</span>
-                    </div>
-                  </div>
-
-                  {/* Passport Card Preview */}
-                  <div className="p-3.5 bg-white border border-[#1a1a1a]/20 rounded-xs space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <ShieldCheck className="w-4 h-4 text-[#4a5d4e]" />
-                        <span className="font-serif-display font-bold text-sm text-[#1a1a1a]">Family Asset Passport</span>
-                      </div>
-                      <span className="font-mono-meta text-[9px] uppercase px-1.5 py-0.2 bg-[#f4f7f4] text-[#4a5d4e] border border-[#4a5d4e]/30 font-bold">
-                        Certified
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 font-mono-meta text-[10px] text-[#1a1a1a]/80">
-                      <div className="p-2 bg-[#f8f7f4] rounded-xs">
-                        <span className="text-[#1a1a1a]/50 block">Tracked Wealth:</span>
-                        <span className="font-bold text-xs text-[#1a1a1a]">₹1,61,95,800</span>
-                      </div>
-                      <div className="p-2 bg-[#f8f7f4] rounded-xs">
-                        <span className="text-[#1a1a1a]/50 block">Registered Nominee:</span>
-                        <span className="font-semibold text-[#1a1a1a]">Priya Shah</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[10px] font-mono-meta text-[#1a1a1a]/60 pt-1">
-                      <span>Storage: Study Room Safe #2</span>
-                      <button
-                        onClick={onExploreQr}
-                        className="text-[#1a1a1a] font-bold underline hover:opacity-80 cursor-pointer flex items-center gap-1"
-                      >
-                        <QrCode className="w-3 h-3" />
-                        <span>Print Physical Tag</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 2: HANDOVER (Dual-Key Governance) */}
-              {activeInteractiveTab === 'handover' && (
-                <div className="space-y-3.5 animate-in fade-in duration-200">
-                  <div className="p-3 bg-[#f8f7f4] border border-[#1a1a1a]/10 rounded-xs space-y-2">
-                    <div className="flex items-center justify-between font-mono-meta text-[9px] uppercase text-[#1a1a1a]/50">
-                      <span>Multi-Party Audit Gate</span>
-                      <span className="text-[#b54708] font-bold">2 Approvals Required</span>
-                    </div>
-
-                    <div className="space-y-1.5 font-mono-meta text-[11px]">
-                      <div className="flex items-center justify-between p-1.5 bg-white border border-[#1a1a1a]/10">
-                        <span>Reviewer 1 (Anil Menon — KYC):</span>
-                        <span className="font-bold text-[#4a5d4e]">Approved ✓</span>
-                      </div>
-                      <div className="flex items-center justify-between p-1.5 bg-white border border-[#1a1a1a]/10">
-                        <span>Reviewer 2 (Meera Iyer — Legal):</span>
-                        <span className={`font-bold ${simulatedReleased ? 'text-[#4a5d4e]' : 'text-[#b54708]'}`}>
-                          {simulatedReleased ? 'Approved ✓' : 'Pending Sign-off'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => setSimulatedReleased(!simulatedReleased)}
-                      className="w-full py-1.5 bg-white hover:bg-[#f0eee9] border border-[#1a1a1a]/20 font-mono-meta text-[10px] uppercase font-bold text-[#1a1a1a] cursor-pointer"
-                    >
-                      {simulatedReleased ? 'Reset Reviewer 2 Sign-off' : 'Simulate Reviewer 2 Sign-off'}
-                    </button>
-                  </div>
-
-                  {/* Scoped Result */}
-                  <div className={`p-3 rounded-xs border text-xs font-mono-meta ${
-                    simulatedReleased
-                      ? 'bg-[#f4f7f4] border-[#4a5d4e] text-[#1a1a1a]'
-                      : 'bg-white border-[#1a1a1a]/15 text-[#1a1a1a]/70'
-                  }`}>
-                    <div className="flex items-center gap-2 font-bold text-xs">
-                      {simulatedReleased ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 text-[#4a5d4e]" />
-                          <span>Status: Released &amp; Unlocked for Family</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-4 h-4 text-[#b54708]" />
-                          <span>Status: Pre-Handover Lock Active (Balances Hidden)</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 3: RECOVER (Dormant Account Discovery) */}
-              {activeInteractiveTab === 'recover' && (
-                <div className="space-y-3.5 animate-in fade-in duration-200">
-                  <div className="p-3 bg-[#f8f7f4] border border-[#1a1a1a]/10 rounded-xs space-y-2">
-                    <div className="flex items-center justify-between font-mono-meta text-[9px] uppercase text-[#1a1a1a]/50">
-                      <span>Central Statutory Registers</span>
-                      <span className="font-bold text-[#1a1a1a]">RBI UDGAM / DICJ</span>
-                    </div>
-
-                    <div className="p-2.5 bg-white border border-[#1a1a1a]/15 rounded-xs space-y-1 text-xs">
-                      <div className="flex justify-between items-center">
-                        <span className="font-serif-display font-bold text-base text-[#1a1a1a]">R K Patel</span>
-                        <span className="font-mono-meta text-[9px] font-bold bg-[#f4f7f4] text-[#4a5d4e] px-1.5 py-0.2 border border-[#4a5d4e]/30">
-                          91/100 Strong Match
-                        </span>
-                      </div>
-                      <div className="text-[11px] font-mono-meta text-[#1a1a1a]/70">
-                        Sagar Bharat Bank • Fixed Deposit • ₹6,42,000
-                      </div>
-                    </div>
-
-                    <div className="p-2 bg-[#fdf6f0] border border-[#b54708]/30 text-[10px] font-mono-meta text-[#b54708]">
-                      Ruled-Out Accounts: "Ramesh Patil" excluded (Birthdate 1966 mismatch).
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Bottom Card Footer */}
-              <div className="pt-2 border-t border-[#1a1a1a]/10 flex items-center justify-between text-[10px] font-mono-meta text-[#1a1a1a]/50">
-                <span>Cryptographic SHA-256 Ledger</span>
-                <span className="text-[#4a5d4e] font-bold">100% Client-Side Verified</span>
-              </div>
-
-            </div>
-
-            {/* Subtle floating accent pill behind mockup */}
-            <div
-              className="absolute -bottom-3 -right-3 w-full h-full bg-[#1a1a1a]/5 -z-10 rounded-xs"
-              aria-hidden="true"
-            />
-          </div>
-
-        </div>
+        <footer className="col-span-2 flex justify-between items-center font-mono text-[0.6rem] text-[#1a1a1a]/60 border-t border-[#1a1a1a]/10 pt-[20px]">
+          <div>PREPARE → HANDOVER → RECOVER</div>
+          <div>CLIENT-SIDE CRYPTOGRAPHY • ZERO-KNOWLEDGE ARCHITECTURE</div>
+          <div>© RECLAIMAI 2024</div>
+        </footer>
       </div>
-    </section>
+    </div>
   );
 };

@@ -36,6 +36,7 @@ import { DigitalAssetQrView } from './components/DigitalAssetQrView';
 import { HeroSection } from './components/HeroSection';
 import { VoiceConciergeView } from './components/VoiceConciergeView';
 import { AuthDemoGateway } from './components/AuthDemoGateway';
+import { StarBackground } from './components/StarBackground';
 import { translations } from './i18n/translations';
 import { triggerConfetti } from './utils/formatters';
 
@@ -44,9 +45,9 @@ export default function App() {
   const [activePersona, setActivePersona] = useState<UserPersona>(JAPAC_PERSONAS[0]);
   const [activeTab, setActiveTab] = useState<string>('overview');
 
-  const [assets, setAssets] = useState<AssetItem[]>(INITIAL_ASSETS);
-  const [nodes, setNodes] = useState<GraphNode[]>(INITIAL_GRAPH_NODES);
-  const [edges, setEdges] = useState<GraphEdge[]>(INITIAL_GRAPH_EDGES);
+  const [assets, setAssets] = useState<AssetItem[]>([]);
+  const [nodes, setNodes] = useState<GraphNode[]>([]);
+  const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [handoverCase, setHandoverCase] = useState<HandoverCase>(INITIAL_HANDOVER_CASE);
   const [passportVersion, setPassportVersion] = useState<number>(1);
 
@@ -56,6 +57,14 @@ export default function App() {
   const [appMode, setAppMode] = useState<'gateway' | 'demo' | 'auth'>('gateway');
   const [authError, setAuthError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  useEffect(() => {
+    if (appMode === 'demo') {
+      setAssets(INITIAL_ASSETS);
+      setNodes(INITIAL_GRAPH_NODES);
+      setEdges(INITIAL_GRAPH_EDGES);
+    }
+  }, [appMode]);
 
   useEffect(() => {
     let unsubscribeAssets: (() => void) | null = null;
@@ -302,7 +311,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f7f4] text-[#1a1a1a] font-sans selection:bg-[#4a5d4e] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#111113] text-[#F8F7F4] font-sans selection:bg-[#87a9ff] selection:text-[#111113] flex flex-col relative">
+      <StarBackground />
       {appMode === 'gateway' && !user && (
         <AuthDemoGateway
           currentLang={currentLang}

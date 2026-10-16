@@ -85,13 +85,13 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="bg-[#f8f7f4] border-b-[1.5px] border-[#1a1a1a] text-[#1a1a1a] sticky top-0 z-40 transition-colors shadow-xs">
+    <header className="bg-[#111113] border-b border-[#F8F7F4]/10 text-[#F8F7F4] sticky top-0 z-40 transition-colors">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Left: Brand */}
         <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
           <div
             onClick={() => onSelectTab('overview')}
-            className="cursor-pointer font-serif-display text-2xl font-semibold italic tracking-tight text-[#1a1a1a] hover:opacity-80 transition-opacity"
+            className="cursor-pointer font-serif-display text-2xl font-semibold italic tracking-tight text-[#F8F7F4] hover:opacity-80 transition-opacity"
           >
             {t.appName}
           </div>
@@ -104,12 +104,11 @@ export const Header: React.FC<HeaderProps> = ({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search institution, label, date..."
-            className="w-full pl-3 pr-3 py-1.5 rounded-xs bg-white border border-[#1a1a1a]/20 text-xs font-mono-meta focus:border-[#1a1a1a] outline-none"
+            className="w-full pl-3 pr-3 py-1.5 rounded-xs bg-[#2b2b2e] border border-[#F8F7F4]/20 text-xs font-mono-meta focus:border-[#87a9ff] outline-none text-[#F8F7F4]"
           />
         </div>
 
-
-        {/* Center: Navigation Links in All Caps Monospace/Inter */}
+        {/* Center: Navigation Links */}
         <nav className="flex items-center gap-4 sm:gap-6 overflow-x-auto max-w-full py-1 text-[11px] uppercase tracking-wider font-semibold font-mono-meta">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
@@ -119,13 +118,13 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => onSelectTab(item.id)}
                 className={`transition-all whitespace-nowrap py-1 relative cursor-pointer ${
                   isActive
-                    ? 'text-[#1a1a1a] font-bold border-b-2 border-[#1a1a1a]'
-                    : 'text-[#1a1a1a]/50 hover:text-[#1a1a1a]'
+                    ? 'text-[#87a9ff] font-bold border-b-2 border-[#87a9ff]'
+                    : 'text-[#F8F7F4]/50 hover:text-[#F8F7F4]'
                 }`}
               >
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="ml-1 text-[9px] px-1 py-0.2 rounded-xs bg-[#4a5d4e]/10 text-[#4a5d4e] font-mono">
+                  <span className="ml-1 text-[9px] px-1 py-0.2 rounded-xs bg-[#87a9ff]/20 text-[#87a9ff] font-mono">
                     {item.badge}
                   </span>
                 )}
