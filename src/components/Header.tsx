@@ -28,6 +28,8 @@ interface HeaderProps {
   onSignOut: () => void;
   isCloudSynced: boolean;
   onSyncDemoToCloud?: () => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
 const LANGUAGE_LABELS: Record<JapacLanguage, { label: string; flag: string; region: string }> = {
@@ -56,6 +58,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSignOut,
   isCloudSynced,
   onSyncDemoToCloud,
+  searchQuery,
+  onSearchChange,
 }) => {
   const t = translations[currentLang] || translations.en;
   const [langMenuOpen, setLangMenuOpen] = useState(false);
@@ -78,20 +82,28 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-[#f8f7f4] border-b-[1.5px] border-[#1a1a1a] text-[#1a1a1a] sticky top-0 z-40 transition-colors shadow-xs">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Left: Brand in Cormorant Garamond */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Left: Brand */}
         <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
           <div
             onClick={() => onSelectTab('overview')}
-            className="cursor-pointer font-serif-display text-3xl font-semibold italic tracking-tight text-[#1a1a1a] hover:opacity-80 transition-opacity"
+            className="cursor-pointer font-serif-display text-2xl font-semibold italic tracking-tight text-[#1a1a1a] hover:opacity-80 transition-opacity"
           >
             {t.appName}
           </div>
-
-          <span className="hidden sm:inline-block font-mono-meta text-[10px] uppercase tracking-widest text-[#1a1a1a]/50 px-2 py-0.5 border border-[#1a1a1a]/15 rounded-xs">
-            {t.badgeDemo}
-          </span>
         </div>
+
+        {/* Search Bar */}
+        <div className="w-full md:max-w-xs relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search institution, label, date..."
+            className="w-full pl-3 pr-3 py-1.5 rounded-xs bg-white border border-[#1a1a1a]/20 text-xs font-mono-meta focus:border-[#1a1a1a] outline-none"
+          />
+        </div>
+
 
         {/* Center: Navigation Links in All Caps Monospace/Inter */}
         <nav className="flex items-center gap-4 sm:gap-6 overflow-x-auto max-w-full py-1 text-[11px] uppercase tracking-wider font-semibold font-mono-meta">

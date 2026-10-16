@@ -55,6 +55,7 @@ export default function App() {
   const [cloudSynced, setCloudSynced] = useState<boolean>(false);
   const [appMode, setAppMode] = useState<'gateway' | 'demo' | 'auth'>('gateway');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     let unsubscribeAssets: (() => void) | null = null;
@@ -329,6 +330,8 @@ export default function App() {
         }}
         isCloudSynced={cloudSynced}
         onSyncDemoToCloud={handleSyncDemoToCloud}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       {/* Main View Area */}
@@ -442,6 +445,7 @@ export default function App() {
             onOpenQr={() => setActiveTab('qrvault')}
             onOpenVoice={() => setActiveTab('voice')}
             handoverReleased={isReleased}
+            searchQuery={searchQuery}
           />
         )}
 

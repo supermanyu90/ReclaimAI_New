@@ -31,6 +31,7 @@ interface WorkspaceViewProps {
   onOpenQr?: (assetId?: string) => void;
   onOpenVoice?: () => void;
   handoverReleased: boolean;
+  searchQuery: string;
 }
 
 export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
@@ -43,14 +44,21 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   onOpenQr,
   onOpenVoice,
   handoverReleased,
+  searchQuery,
 }) => {
   const t = translations[currentLang] || translations.en;
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedAsset, setSelectedAsset] = useState<AssetItem | null>(null);
   const [auditAsset, setAuditAsset] = useState<AssetItem | null>(null);
 
-  const filteredAssets =
-    filterType === 'all' ? assets : assets.filter((a) => a.assetType === filterType);
+  const filteredAssets = assets.filter((a) => {
+    const matchesType = filterType === 'all' || a.assetType === filterType;
+    const matchesSearch =
+      a.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.institutionName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (a.sourceDate || '').toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesType && matchesSearch;
+  });
 
   const totalWealth = assets.reduce(
     (sum, a) => sum + (a.amounts.balance || a.amounts.insuranceCover || a.amounts.estimatedValue || 0),
