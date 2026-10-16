@@ -332,6 +332,8 @@ export default function App() {
         onSyncDemoToCloud={handleSyncDemoToCloud}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        appMode={appMode}
+        onExitDemo={() => setAppMode('gateway')}
       />
 
       {/* Main View Area */}

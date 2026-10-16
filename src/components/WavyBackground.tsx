@@ -1,5 +1,4 @@
-import React, { useRef } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'motion/react';
+import React, { useRef, useEffect } from 'react';
 
 interface WavyBackgroundProps {
   mouseX: number;
@@ -7,45 +6,77 @@ interface WavyBackgroundProps {
 }
 
 export const WavyBackground: React.FC<WavyBackgroundProps> = ({ mouseX, mouseY }) => {
-  const moveX = useTransform(useSpring(mouseX, { stiffness: 50, damping: 20 }), [0, 1000], [-30, 30]);
-  const moveY = useTransform(useSpring(mouseY, { stiffness: 50, damping: 20 }), [0, 1000], [-20, 20]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let time = 0;
+
+    const handleResize = () => {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Offset based on mouse position
+      const mouseFactorX = (mouseX / window.innerWidth) - 0.5;
+      const mouseFactorY = (mouseY / window.innerHeight) - 0.5;
+
+      // Draw two wave layers
+      drawWave(ctx, canvas, time, 0.005 + mouseFactorX * 0.002, 30 + mouseFactorY * 20, '#1a1a1a', 0.05);
+      drawWave(ctx, canvas, time * 0.8, 0.003 + mouseFactorX * 0.001, 50 + mouseFactorY * 30, '#4a5d4e', 0.05);
+
+      time += 0.02;
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    const drawWave = (
+      ctx: CanvasRenderingContext2D,
+      canvas: HTMLCanvasElement,
+      time: number,
+      frequency: number,
+      amplitude: number,
+      color: string,
+      opacity: number
+    ) => {
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height);
+      
+      for (let x = 0; x <= canvas.width; x++) {
+        const y = Math.sin(x * frequency + time) * amplitude + canvas.height * 0.8;
+        ctx.lineTo(x, y);
+      }
+      
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.fillStyle = color;
+      ctx.globalAlpha = opacity;
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [mouseX, mouseY]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: '#1a1a1a', stopOpacity: 0.05 }} />
-            <stop offset="100%" style={{ stopColor: '#4a5d4e', stopOpacity: 0.05 }} />
-          </linearGradient>
-        </defs>
-        <motion.path
-          d="M0 100 Q 250 50 500 100 T 1000 100 L 1000 0 L 0 0 Z"
-          fill="url(#waveGrad)"
-          style={{ x: moveX, y: moveY }}
-          animate={{
-            d: [
-              "M0 100 Q 250 50 500 100 T 1000 100 L 1000 0 L 0 0 Z",
-              "M0 100 Q 250 150 500 100 T 1000 100 L 1000 0 L 0 0 Z",
-              "M0 100 Q 250 50 500 100 T 1000 100 L 1000 0 L 0 0 Z"
-            ]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.path
-          d="M0 150 Q 300 200 600 150 T 1200 150 L 1200 0 L 0 0 Z"
-          fill="url(#waveGrad)"
-          style={{ x: useTransform(moveX, (v) => -v * 1.5), y: useTransform(moveY, (v) => -v * 1.5) }}
-          animate={{
-            d: [
-              "M0 150 Q 300 200 600 150 T 1200 150 L 1200 0 L 0 0 Z",
-              "M0 150 Q 300 100 600 150 T 1200 150 L 1200 0 L 0 0 Z",
-              "M0 150 Q 300 200 600 150 T 1200 150 L 1200 0 L 0 0 Z"
-            ]
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </svg>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+    />
   );
 };

@@ -30,6 +30,8 @@ interface HeaderProps {
   onSyncDemoToCloud?: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  appMode?: 'gateway' | 'demo' | 'auth';
+  onExitDemo?: () => void;
 }
 
 const LANGUAGE_LABELS: Record<JapacLanguage, { label: string; flag: string; region: string }> = {
@@ -60,6 +62,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSyncDemoToCloud,
   searchQuery,
   onSearchChange,
+  appMode,
+  onExitDemo,
 }) => {
   const t = translations[currentLang] || translations.en;
   const [langMenuOpen, setLangMenuOpen] = useState(false);
@@ -321,6 +325,17 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <LogIn className="w-3.5 h-3.5 text-emerald-400" />
               <span>Sign In</span>
+            </button>
+          )}
+
+          {/* Exit Demo */}
+          {appMode === 'demo' && onExitDemo && (
+            <button
+              onClick={onExitDemo}
+              title="Exit Demo Mode"
+              className="px-3 py-1.5 rounded-xs bg-[#f4f7f4] border border-[#4a5d4e]/30 text-[#4a5d4e] hover:bg-[#4a5d4e] hover:text-white transition-all cursor-pointer font-mono-meta text-[11px] uppercase tracking-wider"
+            >
+              Exit Demo
             </button>
           )}
 
