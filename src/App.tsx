@@ -35,6 +35,7 @@ import { AnalyticsView } from './components/AnalyticsView';
 import { DigitalAssetQrView } from './components/DigitalAssetQrView';
 import { HeroSection } from './components/HeroSection';
 import { VoiceConciergeView } from './components/VoiceConciergeView';
+import { AuthDemoGateway } from './components/AuthDemoGateway';
 import { translations } from './i18n/translations';
 import { triggerConfetti } from './utils/formatters';
 
@@ -52,6 +53,7 @@ export default function App() {
   // Firebase Auth and Cloud Sync state
   const [user, setUser] = useState<User | null>(null);
   const [cloudSynced, setCloudSynced] = useState<boolean>(false);
+  const [appMode, setAppMode] = useState<'gateway' | 'demo' | 'auth'>('gateway');
 
   useEffect(() => {
     let unsubscribeAssets: (() => void) | null = null;
@@ -60,6 +62,7 @@ export default function App() {
       setUser(currentUser);
       if (currentUser) {
         setCloudSynced(true);
+        setAppMode('auth');
         await syncUserProfile(currentUser);
 
         unsubscribeAssets = subscribeUserAssets(
@@ -289,6 +292,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f8f7f4] text-[#1a1a1a] font-sans selection:bg-[#4a5d4e] selection:text-white flex flex-col">
+      {appMode === 'gateway' && !user && (
+        <AuthDemoGateway
+          currentLang={currentLang}
+          onSelectMode={(mode) => setAppMode(mode)}
+          onSignIn={handleSignIn}
+        />
+      )}
+
       {/* Top Header & Navigation */}
       <Header
         currentLang={currentLang}
@@ -301,7 +312,10 @@ export default function App() {
         onResetDemo={handleResetDemo}
         user={user}
         onSignIn={handleSignIn}
-        onSignOut={handleSignOut}
+        onSignOut={() => {
+          handleSignOut();
+          setAppMode('gateway');
+        }}
         isCloudSynced={cloudSynced}
         onSyncDemoToCloud={handleSyncDemoToCloud}
       />
