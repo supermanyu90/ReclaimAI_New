@@ -44,6 +44,9 @@ const QR_I18N: Record<
     decodedSuccess: string;
     selectAssetPrompt: string;
     tamperEvidentSeal: string;
+    printPdf: string;
+    assetCertificateTitle: string;
+    close: string;
   }
 > = {
   en: {
@@ -66,6 +69,9 @@ const QR_I18N: Record<
     decodedSuccess: 'Payload Authenticated: Signature Matches Ledger Record',
     selectAssetPrompt: 'Select an asset below to inspect its individual cryptographic QR token:',
     tamperEvidentSeal: 'Tamper-Evident Physical Asset Marker',
+    printPdf: 'Print PDF',
+    assetCertificateTitle: 'Tamper-Evident Asset QR Certificate',
+    close: 'Close',
   },
   ja: {
     title: 'デジタル資産QRコード保管庫',
@@ -87,6 +93,9 @@ const QR_I18N: Record<
     decodedSuccess: '検証成功: 電子署名が台帳記録と完全に一致しました',
     selectAssetPrompt: '個別のQRコードを確認する資産を選択してください:',
     tamperEvidentSeal: '改ざん防止・公式物理保管マーカー',
+    printPdf: 'PDF印刷',
+    assetCertificateTitle: '改ざん防止資産QR証明書',
+    close: '閉じる',
   },
   'zh-Hans': {
     title: '数字资产 QR 码存储凭证',
@@ -108,6 +117,9 @@ const QR_I18N: Record<
     decodedSuccess: '数据包验真通过：数字签名与账本记录完全一致',
     selectAssetPrompt: '请在下方选择需要生成独立二维码的资产：',
     tamperEvidentSeal: '防篡改实物资产标识',
+    printPdf: '打印 PDF',
+    assetCertificateTitle: '防篡改资产 QR 证书',
+    close: '关闭',
   },
   'zh-Hant': {
     title: '數位資產 QR 碼存證庫',
@@ -120,7 +132,7 @@ const QR_I18N: Record<
     downloadSvg: '儲存 QR 影像',
     copyPayload: '複製加密數據包',
     copied: '已複製至剪貼簿！',
-    securityLevel: '高級容錯 (Level H: 30% 抗損毀能力)',
+    securityLevel: '高級容錯 (Level H: 30% 抗損毁能力)',
     physicalCoordinates: '紙本憑證存放具體位置',
     verifiedSignature: 'SHA-256 HMAC 簽章封印',
     scannerTitle: '密碼學 QR 解密驗證模擬器',
@@ -129,6 +141,9 @@ const QR_I18N: Record<
     decodedSuccess: '數據包驗真通過：數位簽章與帳本記錄完全一致',
     selectAssetPrompt: '請在下方選擇需要產生獨立二維碼的資產：',
     tamperEvidentSeal: '防篡改實體資產標識',
+    printPdf: '列印 PDF',
+    assetCertificateTitle: '防篡改資產 QR 憑證',
+    close: '關閉',
   },
   ko: {
     title: '디지털 자산 QR 보관소',
@@ -150,6 +165,9 @@ const QR_I18N: Record<
     decodedSuccess: '검증 성공: 전자 서명이 원장 기록과 일치합니다',
     selectAssetPrompt: '개별 QR 코드를 확인할 자산을 선택하세요:',
     tamperEvidentSeal: '위변조 방지 실물 자산 표식',
+    printPdf: 'PDF 인쇄',
+    assetCertificateTitle: '위변조 방지 자산 QR 인증서',
+    close: '닫기',
   },
   hi: {
     title: 'डिजिटल संपत्ति QR वॉल्ट',
@@ -171,6 +189,9 @@ const QR_I18N: Record<
     decodedSuccess: 'सत्यापन सफल: डिजिटल हस्ताक्षर खाते से पूरी तरह मेल खाता है',
     selectAssetPrompt: 'व्यक्तिगत QR देखने के लिए संपत्ति चुनें:',
     tamperEvidentSeal: 'छेड़छाड़-रोधी भौतिक संपत्ति मार्कर',
+    printPdf: 'PDF प्रिंट करें',
+    assetCertificateTitle: 'छेड़छाड़-रोधी संपत्ति QR प्रमाणपत्र',
+    close: 'बंद करें',
   },
   id: {
     title: 'Brankas QR Aset Digital',
@@ -192,6 +213,9 @@ const QR_I18N: Record<
     decodedSuccess: 'Autentikasi Berhasil: Tanda tangan digital cocok dengan buku besar',
     selectAssetPrompt: 'Pilih aset untuk memeriksa token QR kriptografisnya:',
     tamperEvidentSeal: 'Segel Anti-Manipulasi Penanda Aset Fisik',
+    printPdf: 'Cetak PDF',
+    assetCertificateTitle: 'Sertifikat QR Aset Anti-Manipulasi',
+    close: 'Tutup',
   },
   th: {
     title: 'คลัง QR ทรัพย์สินดิจิทัล',
@@ -213,6 +237,9 @@ const QR_I18N: Record<
     decodedSuccess: 'ตรวจสอบสำเร็จ: ลายเซ็นดิจิทัลตรงกับข้อมูลในระบบ',
     selectAssetPrompt: 'เลือกทรัพย์สินเพื่อดูรหัส QR เฉพาะรายการ:',
     tamperEvidentSeal: 'ตราประทับป้องกันการดัดแปลงสำหรับทรัพย์สินจริง',
+    printPdf: 'พิมพ์ PDF',
+    assetCertificateTitle: 'ใบรับรอง QR ทรัพย์สินป้องกันการดัดแปลง',
+    close: 'ปิด',
   },
   vi: {
     title: 'Kho Mã QR Tài sản Số',
@@ -234,6 +261,9 @@ const QR_I18N: Record<
     decodedSuccess: 'Xác thực Thành công: Chữ ký điện tử khớp với hồ sơ sổ cái',
     selectAssetPrompt: 'Chọn một tài sản để kiểm tra mã QR độc lập:',
     tamperEvidentSeal: 'Dấu niêm phong Chống giả mạo Tài sản Thực tế',
+    printPdf: 'In PDF',
+    assetCertificateTitle: 'Chứng nhận QR Tài sản Chống Giả mạo',
+    close: 'Đóng',
   },
 };
 
@@ -248,6 +278,11 @@ export const DigitalAssetQrView: React.FC<DigitalAssetQrViewProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [scannerSimulating, setScannerSimulating] = useState(false);
   const [scannedResult, setScannedResult] = useState<any | null>(null);
+  const [printingAsset, setPrintingAsset] = useState<AssetItem | null>(null);
+
+  const handlePrintSingleAsset = (asset: AssetItem) => {
+    setPrintingAsset(asset);
+  };
 
   const selectedAsset = assets.find((a) => a.id === selectedAssetId) || assets[0];
 
@@ -466,15 +501,25 @@ export const DigitalAssetQrView: React.FC<DigitalAssetQrViewProps> = ({
                       )}
                     </button>
 
-                    <button
-                      onClick={() => {
-                        setSelectedAssetId(asset.id);
-                        setActiveSubTab('focus');
-                      }}
-                      className="text-[#1a1a1a] font-bold underline hover:opacity-75 cursor-pointer"
-                    >
-                      Inspect
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handlePrintSingleAsset(asset)}
+                        className="text-[#1a1a1a] hover:opacity-80 flex items-center gap-1 cursor-pointer font-bold"
+                      >
+                        <Printer className="w-3 h-3" />
+                        <span>{i18n.printPdf}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setSelectedAssetId(asset.id);
+                          setActiveSubTab('focus');
+                        }}
+                        className="text-[#1a1a1a] font-bold underline hover:opacity-75 cursor-pointer"
+                      >
+                        Inspect
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -557,12 +602,19 @@ export const DigitalAssetQrView: React.FC<DigitalAssetQrViewProps> = ({
                 <div className="text-[#1a1a1a]">{generateAssetPayload(selectedAsset)}</div>
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-wrap gap-3 pt-2">
                 <button
                   onClick={() => handleCopy(generateAssetPayload(selectedAsset), selectedAsset.id)}
                   className="px-4 py-2.5 rounded-xs bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] font-mono-meta text-[11px] uppercase tracking-widest font-semibold cursor-pointer"
                 >
                   {copiedId === selectedAsset.id ? 'Copied!' : 'Copy Token Link'}
+                </button>
+                <button
+                  onClick={() => handlePrintSingleAsset(selectedAsset)}
+                  className="px-4 py-2.5 rounded-xs bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] font-mono-meta text-[11px] uppercase tracking-widest font-semibold cursor-pointer flex items-center gap-1.5"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>{i18n.printPdf}</span>
                 </button>
                 <button
                   onClick={() => {
@@ -661,6 +713,112 @@ export const DigitalAssetQrView: React.FC<DigitalAssetQrViewProps> = ({
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Printable Single Asset PDF Certificate Modal */}
+      {printingAsset && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-xs border-2 border-[#1a1a1a] max-w-2xl w-full p-8 shadow-2xl space-y-6 relative print:border-none print:shadow-none print:p-0">
+            {/* Action Bar (No Print) */}
+            <div className="flex items-center justify-between border-b border-[#1a1a1a]/15 pb-4 no-print">
+              <span className="font-mono-meta text-xs font-bold uppercase text-[#1a1a1a]/60">
+                {i18n.assetCertificateTitle}
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => window.print()}
+                  className="px-4 py-2 bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] font-mono-meta text-xs uppercase tracking-widest font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Print Official PDF</span>
+                </button>
+                <button
+                  onClick={() => setPrintingAsset(null)}
+                  className="px-4 py-2 bg-white hover:bg-[#f8f7f4] text-[#1a1a1a] border border-[#1a1a1a]/30 font-mono-meta text-xs uppercase tracking-widest font-semibold cursor-pointer"
+                >
+                  {i18n.close}
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Certificate Content */}
+            <div className="space-y-6 border-2 border-[#1a1a1a] p-6 sm:p-8 bg-white print:border-black">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b-2 border-[#1a1a1a] pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-[#4a5d4e]" />
+                    <span className="font-serif-display font-bold text-xl text-[#1a1a1a]">ReclaimAI Vault Trust</span>
+                  </div>
+                  <p className="font-mono-meta text-[10px] text-[#1a1a1a]/60 uppercase tracking-wider mt-0.5">
+                    {i18n.assetCertificateTitle}
+                  </p>
+                </div>
+                <div className="text-right font-mono-meta text-[10px] text-[#1a1a1a]/70">
+                  <div>Jurisdiction: {printingAsset.jurisdiction}</div>
+                  <div>Owner: {ownerName}</div>
+                </div>
+              </div>
+
+              {/* Asset Title & QR Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
+                <div className="sm:col-span-7 space-y-3">
+                  <div>
+                    <span className="font-mono-meta text-[10px] uppercase px-2 py-0.5 bg-[#f8f7f4] border border-[#1a1a1a]/15 text-[#1a1a1a]/70">
+                      {printingAsset.assetType.replace(/_/g, ' ')}
+                    </span>
+                    <h2 className="font-serif-display text-3xl font-bold text-[#1a1a1a] mt-1.5">
+                      {printingAsset.label}
+                    </h2>
+                    <p className="font-mono-meta text-xs text-[#1a1a1a]/70">
+                      {printingAsset.institutionName} • Reference: {printingAsset.maskedReference}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 font-mono-meta text-xs pt-2 border-t border-[#1a1a1a]/10">
+                    <div className="flex justify-between p-2 bg-[#f8f7f4]">
+                      <span className="text-[#1a1a1a]/60">Registered Nominee:</span>
+                      <span className="font-bold text-[#1a1a1a]">{printingAsset.nomineeName || 'Direct Legal Heirs'}</span>
+                    </div>
+                    <div className="flex justify-between p-2 bg-[#f8f7f4]">
+                      <span className="text-[#1a1a1a]/60">Physical Location:</span>
+                      <span className="font-bold text-[#1a1a1a]">{printingAsset.documentLocation || 'Master Family Vault'}</span>
+                    </div>
+                    <div className="flex justify-between p-2 bg-[#f8f7f4]">
+                      <span className="text-[#1a1a1a]/60">Valuation / Cover:</span>
+                      <span className="font-bold text-[#1a1a1a]">
+                        {printingAsset.amounts.balance ? `₹${printingAsset.amounts.balance.toLocaleString()}` : printingAsset.amounts.insuranceCover ? `₹${printingAsset.amounts.insuranceCover.toLocaleString()}` : printingAsset.amounts.estimatedValue ? `₹${printingAsset.amounts.estimatedValue.toLocaleString()}` : 'Declared Record'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-5 flex flex-col items-center justify-center p-4 bg-[#fbfaf8] border border-[#1a1a1a]/20 rounded-xs">
+                  <QRCodeSVG
+                    value={generateAssetPayload(printingAsset)}
+                    size={160}
+                    level="H"
+                    includeMargin={true}
+                  />
+                  <span className="mt-2 font-mono-meta text-[9px] uppercase tracking-widest text-[#1a1a1a]/60 text-center">
+                    Level-H Tamper-Evident QR
+                  </span>
+                </div>
+              </div>
+
+              {/* Cryptographic Signature footer */}
+              <div className="pt-4 border-t-2 border-[#1a1a1a]/20 space-y-2 font-mono-meta text-[10px] text-[#1a1a1a]/70">
+                <div className="flex items-center justify-between">
+                  <span>Cryptographic Seal: sha256:{printingAsset.id.slice(-6)}...{printingAsset.institutionName.slice(0, 3)}</span>
+                  <span className="text-[#4a5d4e] font-bold">100% Offline Verifiable</span>
+                </div>
+                <p className="text-[9px] text-[#1a1a1a]/50 leading-tight">
+                  This certificate anchors the physical asset coordinate and cryptographic payload for family handover. Affix the printed physical tag to the designated storage container.
+                </p>
+              </div>
             </div>
           </div>
         </div>

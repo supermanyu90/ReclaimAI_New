@@ -62,12 +62,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             {/* Editorial Serif Headline */}
             <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-[3.5rem] font-semibold italic text-[#1a1a1a] tracking-tight leading-[1.02]">
-              One maintained record. Controlled family access. A clearer path to claims.
+              {t.heroHeadline}
             </h1>
 
             {/* Supporting Subheading */}
             <p className="text-sm sm:text-base text-[#1a1a1a]/80 max-w-xl font-sans leading-relaxed font-normal">
-              Capture your bank deposits, policies, and property deeds conversationally. Affix tamper-evident physical QR seals, and ensure inheritances are unlocked only upon dual independent compliance sign-off.
+              {t.heroSubheading}
             </p>
 
             {/* CTAs: Conversion focused */}

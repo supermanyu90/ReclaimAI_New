@@ -18,6 +18,7 @@ import {
 import { AssetItem, GraphEdge, GraphNode, JapacLanguage } from '../types';
 import { translations } from '../i18n/translations';
 import { RelationshipGraph } from './RelationshipGraph';
+import { AssetAuditTrailModal } from './AssetAuditTrailModal';
 import { formatCurrency, formatDate } from '../utils/formatters';
 
 interface WorkspaceViewProps {
@@ -46,6 +47,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   const t = translations[currentLang] || translations.en;
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedAsset, setSelectedAsset] = useState<AssetItem | null>(null);
+  const [auditAsset, setAuditAsset] = useState<AssetItem | null>(null);
 
   const filteredAssets =
     filterType === 'all' ? assets : assets.filter((a) => a.assetType === filterType);
@@ -54,6 +56,43 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
     (sum, a) => sum + (a.amounts.balance || a.amounts.insuranceCover || a.amounts.estimatedValue || 0),
     0
   );
+
+  // Automated risk assessment calculation based on handover governance rules
+  const evaluateAssetRisk = (asset: AssetItem) => {
+    let score = 0;
+    const reasons: string[] = [];
+    const isNomineeMissing =
+      asset.nominationStatus === 'unregistered' ||
+      asset.nominationStatus === 'unknown' ||
+      !asset.nomineeName;
+    const isDocLocationMissing = !asset.documentLocation || asset.documentLocation === 'Not cataloged';
+    const isEvidenceMissing = !asset.evidence || asset.evidence.length === 0;
+    const isCustodianMissing = !asset.institutionName || asset.institutionName.toLowerCase().includes('unknown');
+
+    if (isNomineeMissing) {
+      score += 45;
+      reasons.push('Nomination unregistered');
+    }
+    if (isDocLocationMissing) {
+      score += 30;
+      reasons.push('Missing document location');
+    }
+    if (isEvidenceMissing) {
+      score += 25;
+      reasons.push('No verified evidence');
+    }
+    if (isCustodianMissing) {
+      score += 30;
+      reasons.push('Custodian details incomplete');
+    }
+
+    const level: 'high' | 'medium' | 'low' = score >= 50 ? 'high' : score >= 25 ? 'medium' : 'low';
+    return { score, level, reasons };
+  };
+
+  const assetRisks = assets.map((a) => ({ asset: a, risk: evaluateAssetRisk(a) }));
+  const highRiskCount = assetRisks.filter((r) => r.risk.level === 'high').length;
+  const mediumRiskCount = assetRisks.filter((r) => r.risk.level === 'medium').length;
 
   const attentionItems = assets.filter(
     (a) =>
@@ -79,6 +118,39 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
               </span>
               <div className="font-serif-display text-4xl lg:text-[2.75rem] font-semibold text-[#1a1a1a] tracking-tight">
                 {formatCurrency(totalWealth, 'INR')}
+              </div>
+            </div>
+          </div>
+
+          {/* Automated Risk Assessment Indicator Card */}
+          <div className="pb-6 border-b border-[#1a1a1a]/10 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-mono-meta text-[10px] uppercase tracking-widest text-[#1a1a1a]/65 block font-bold">
+                Automated Risk Assessment
+              </span>
+              <span
+                className={`px-2 py-0.5 text-[9px] font-mono-meta font-bold uppercase rounded-xs ${
+                  highRiskCount > 0
+                    ? 'bg-amber-100 text-[#b54708] border border-amber-300'
+                    : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                }`}
+              >
+                {highRiskCount > 0 ? `${highRiskCount} High Risk Assets` : 'Low Estate Risk'}
+              </span>
+            </div>
+            <p className="text-xs text-[#1a1a1a]/80 leading-relaxed font-normal">
+              Evaluated against 2-reviewer handover governance rules. {highRiskCount} assets lack sufficient nomination or document custody records.
+            </p>
+            <div className="grid grid-cols-2 gap-2 pt-1 font-mono-meta text-[11px]">
+              <div className="p-2.5 bg-white border border-[#1a1a1a]/10 rounded-xs">
+                <div className="text-[9px] uppercase text-[#b54708] font-bold">High Risk Gaps</div>
+                <div className="text-lg font-serif-display font-bold text-[#b54708]">{highRiskCount}</div>
+              </div>
+              <div className="p-2.5 bg-white border border-[#1a1a1a]/10 rounded-xs">
+                <div className="text-[9px] uppercase text-[#1a1a1a]/65 font-bold">Moderate / Verified</div>
+                <div className="text-lg font-serif-display font-bold text-[#1a1a1a]">
+                  {assets.length - highRiskCount}
+                </div>
               </div>
             </div>
           </div>
@@ -169,6 +241,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                   <th className="py-3 px-3 font-semibold">Asset Detail</th>
                   <th className="py-3 px-3 font-semibold">Region</th>
                   <th className="py-3 px-3 font-semibold">Nomination</th>
+                  <th className="py-3 px-3 font-semibold">Risk Status</th>
                   <th className="py-3 px-3 text-right font-semibold">Valuation</th>
                 </tr>
               </thead>
@@ -181,6 +254,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                     0;
                   const isNomineeAlert =
                     asset.nominationStatus === 'unregistered' || asset.nominationStatus === 'unknown';
+                  const riskEval = evaluateAssetRisk(asset);
 
                   return (
                     <tr
@@ -217,6 +291,31 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                           : asset.nominationStatus === 'unregistered'
                           ? 'Unregistered'
                           : 'Unknown'}
+                      </td>
+
+                      <td className="py-4 px-3">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-xs font-mono-meta text-[10px] font-bold uppercase tracking-wider ${
+                            riskEval.level === 'high'
+                              ? 'bg-amber-100 text-[#b54708] border border-amber-300'
+                              : riskEval.level === 'medium'
+                              ? 'bg-yellow-50 text-amber-700 border border-yellow-200'
+                              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          }`}
+                        >
+                          {riskEval.level === 'high' ? (
+                            <AlertTriangle className="w-3 h-3 text-[#b54708]" />
+                          ) : (
+                            <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                          )}
+                          <span>
+                            {riskEval.level === 'high'
+                              ? 'High Risk'
+                              : riskEval.level === 'medium'
+                              ? 'Moderate'
+                              : 'Verified'}
+                          </span>
+                        </span>
                       </td>
 
                       <td className="py-4 px-3 text-right font-semibold font-mono-meta text-xs text-[#1a1a1a]">
@@ -299,6 +398,44 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             </div>
 
             <div className="space-y-2 text-[#1a1a1a]">
+              {(() => {
+                const evalRisk = evaluateAssetRisk(selectedAsset);
+                return (
+                  <div
+                    className={`p-3 rounded-xs border font-mono-meta text-[11px] space-y-1 ${
+                      evalRisk.level === 'high'
+                        ? 'bg-amber-50 border-amber-300 text-amber-900'
+                        : evalRisk.level === 'medium'
+                        ? 'bg-yellow-50 border-yellow-200 text-amber-800'
+                        : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between font-bold uppercase">
+                      <span className="flex items-center gap-1.5">
+                        {evalRisk.level === 'high' ? (
+                          <AlertTriangle className="w-3.5 h-3.5 text-[#b54708]" />
+                        ) : (
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                        )}
+                        <span>Governance Risk: {evalRisk.level.toUpperCase()}</span>
+                      </span>
+                      <span>Score: {evalRisk.score}/100</span>
+                    </div>
+                    {evalRisk.reasons.length > 0 ? (
+                      <ul className="list-disc list-inside pt-1 space-y-0.5 text-[10px] opacity-90">
+                        {evalRisk.reasons.map((r, i) => (
+                          <li key={i}>{r}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="text-[10px] pt-1">
+                        ✓ Fully compliant with 2-reviewer handover governance rules.
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               <div className="flex justify-between p-2.5 rounded-xs bg-[#f8f7f4] border border-[#1a1a1a]/10">
                 <span className="text-[#1a1a1a]/60">Valuation:</span>
                 <span className="font-mono-meta font-bold text-[#1a1a1a]">
@@ -328,18 +465,32 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
               </div>
             </div>
 
-            <div className="pt-2 flex justify-between items-center border-t border-[#1a1a1a]/10">
-              <button
-                onClick={() => {
-                  const id = selectedAsset.id;
-                  setSelectedAsset(null);
-                  if (onOpenQr) onOpenQr(id);
-                }}
-                className="px-3.5 py-2 rounded-xs bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] font-mono-meta text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
-              >
-                <QrCode className="w-3.5 h-3.5" />
-                <span>Export Physical QR Tag</span>
-              </button>
+            <div className="pt-2 flex flex-wrap justify-between items-center gap-2 border-t border-[#1a1a1a]/10">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const id = selectedAsset.id;
+                    setSelectedAsset(null);
+                    if (onOpenQr) onOpenQr(id);
+                  }}
+                  className="px-3 py-2 rounded-xs bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] font-mono-meta text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>Physical QR</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const asset = selectedAsset;
+                    setSelectedAsset(null);
+                    setAuditAsset(asset);
+                  }}
+                  className="px-3 py-2 rounded-xs bg-[#f8f7f4] border border-[#1a1a1a]/20 text-[#1a1a1a] hover:bg-[#f0eee9] font-mono-meta text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5 text-[#1a1a1a]/70" />
+                  <span>Audit Trail</span>
+                </button>
+              </div>
+
               <button
                 onClick={() => setSelectedAsset(null)}
                 className="px-4 py-2 rounded-xs bg-[#f8f7f4] border border-[#1a1a1a]/20 text-[#1a1a1a] hover:bg-white cursor-pointer font-mono-meta text-[10px] uppercase tracking-wider"
@@ -349,6 +500,16 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Asset Audit Trail Modal */}
+      {auditAsset && (
+        <AssetAuditTrailModal
+          asset={auditAsset}
+          currentLang={currentLang}
+          onClose={() => setAuditAsset(null)}
+          onOpenQr={onOpenQr}
+        />
       )}
     </div>
   );

@@ -4,6 +4,8 @@ export interface Translations {
   appName: string;
   tagline: string;
   subTagline: string;
+  heroHeadline: string;
+  heroSubheading: string;
   badgeDemo: string;
   tabs: {
     workspace: string;
@@ -147,6 +149,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI',
     tagline: 'Financial Legacy & Estate Handover',
     subTagline: 'Prepare → Handover → Recover | One maintained record, controlled family access, a clearer path to claims.',
+    heroHeadline: 'One maintained record. Controlled family access. A clearer path to claims.',
+    heroSubheading: 'Capture your bank deposits, policies, and property deeds conversationally. Affix tamper-evident physical QR seals, and ensure inheritances are unlocked only upon dual independent compliance sign-off.',
     badgeDemo: 'JAPAC Enterprise Edition',
     tabs: {
       workspace: 'Workspace',
@@ -293,6 +297,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI (リクレームAI)',
     tagline: '遺産相続・金融資産ハンドオーバープラットフォーム',
     subTagline: '準備 → 委託・引継ぎ → 回復 | 一元化された資産台帳・家族への統制アクセス・明確な相続請求プロセス',
+    heroHeadline: '1つの確実な台帳。統制された家族アクセス。明確な相続請求への道。',
+    heroSubheading: '預金、保険、不動産証書を音声や対話で簡単記録。改ざん防止QRシールを貼付し、2名の独立した審査官の承認によってのみ安全に相続が実行されます。',
     badgeDemo: 'JAPAC アジア太平洋エンタープライズ版',
     tabs: {
       workspace: '資産台帳',
@@ -439,6 +445,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI',
     tagline: '家族资产传承与交接平台',
     subTagline: '记录整理 → 审核交接 → 沉睡寻回 | 一份可信档案，受控家族访问，清晰索赔路径。',
+    heroHeadline: '一份统一账本。受控家族访问。清晰的理赔路径。',
+    heroSubheading: '通过对话轻松记录银行存款、保单与房产契约。加盖防篡改物理二维码印章，确保遗产仅在独立双人合规审核通过后方可解锁。',
     badgeDemo: 'JAPAC 亚太企业版',
     tabs: {
       workspace: '资产工作台',
@@ -585,6 +593,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI',
     tagline: '家族資產傳承與交接平台',
     subTagline: '整理登記 → 嚴謹交接 → 尋回沉睡 | 一份可信檔案，受控家族存取，清晰索賠路徑。',
+    heroHeadline: '一份統一帳本。受控家族存取。清晰的理賠路徑。',
+    heroSubheading: '透過對話輕鬆記錄銀行存款、保單與房產契約。加蓋防篡改實體二維碼印章，確保遺產僅在獨立雙人合規審核通過後方可解鎖。',
     badgeDemo: 'JAPAC 亞太企業旗艦版',
     tabs: {
       workspace: '資產工作台',
@@ -731,6 +741,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI',
     tagline: '금융 유산 및 자산 상속 핸드오버 플랫폼',
     subTagline: '준비 → 인계 → 복원 | 하나의 검증된 원장, 통제된 가족 접근, 명확한 상속 청구 가이드',
+    heroHeadline: '하나의 정비된 원장. 통제된 가족 접근. 명확한 상속 청구 경로.',
+    heroSubheading: '대화를 통해 은행 예금, 보험, 부동산 증서를 쉽게 기록하세요. 위변조 방지 물리 QR 씰을 부착하고, 독립된 2인 심사관의 승인을 통해서만 상속이 해제되도록 보장합니다.',
     badgeDemo: 'JAPAC 아태 엔터프라이즈 에디션',
     tabs: {
       workspace: '자산 원장',
@@ -877,6 +889,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI (रिक्लेम एआई)',
     tagline: 'वित्तीय विरासत और पारिवारिक हैंडओवर प्लेटफॉर्म',
     subTagline: 'तैयारी → सुरक्षित हैंडओवर → पुनर्प्राप्ति | एक प्रमाणित खाता, नियंत्रित पारिवारिक पहुंच, दावों का सरल मार्ग।',
+    heroHeadline: 'एक सुव्यवस्थित खाता। नियंत्रित पारिवारिक पहुंच। दावों का स्पष्ट मार्ग।',
+    heroSubheading: 'अपने बैंक जमा, पॉलिसियों और संपत्ति के कागजातों को बातचीत के माध्यम से दर्ज करें। छेड़छाड़-रोधी भौतिक QR सील लगाएं, और सुनिश्चित करें कि विरासत केवल दो स्वतंत्र अनुपालन अनुमोदनों पर ही खुले।',
     badgeDemo: 'JAPAC एंटरप्राइज संस्करण',
     tabs: {
       workspace: 'संपत्ति खाता',
@@ -1023,6 +1037,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI',
     tagline: 'Platform Warisan Finansial & Serah Terima Aset',
     subTagline: 'Persiapkan → Serah Terima → Pemulihan | Satu catatan terverifikasi, akses keluarga terkontrol, jalur klaim terarah.',
+    heroHeadline: 'Satu catatan terkelola. Akses keluarga terkontrol. Jalur klaim yang jelas.',
+    heroSubheading: 'Catat simpanan bank, polis, dan akta properti Anda secara percakapan. Tempelkan segel QR fisik anti-rusak, dan pastikan warisan hanya terbuka setelah persetujuan kepatuhan independen ganda.',
     badgeDemo: 'JAPAC Enterprise Edition',
     tabs: {
       workspace: 'Portofolio',
@@ -1169,6 +1185,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI',
     tagline: 'แพลตฟอร์มจัดการมรดกและส่งมอบทรัพย์สินทางการเงิน',
     subTagline: 'เตรียมพร้อม → ส่งมอบอย่างปลอดภัย → ค้นหาทรัพย์สินตกหล่น | บัญชีเดียวที่เชื่อถือได้ การเข้าถึงที่ปลอดภัย เส้นทางเคลมที่ชัดเจน',
+    heroHeadline: 'บัญชีเดียวที่จัดการได้ดี การเข้าถึงที่ปลอดภัย เส้นทางเคลมที่ชัดเจน',
+    heroSubheading: 'บันทึกเงินฝากธนาคาร กรมธรรม์ และโฉนดที่ดินผ่านการสนทนา ติดตั้งซีล QR ป้องกันการงัดแงะ และมั่นใจว่ามรดกจะถูกปลดล็อกเมื่อได้รับการอนุมัติจากผู้ตรวจสอบอิสระสองท่านเท่านั้น',
     badgeDemo: 'JAPAC Enterprise Edition',
     tabs: {
       workspace: 'สมุดทรัพย์สิน',
@@ -1315,6 +1333,8 @@ export const translations: Record<JapacLanguage, Translations> = {
     appName: 'ReclaimAI',
     tagline: 'Nền tảng Quản lý & Bàn giao Di sản Tài chính',
     subTagline: 'Chuẩn bị → Bàn giao An toàn → Thu hồi Tài sản | Một sổ cái xác thực, kiểm soát quyền truy cập của gia đình, hướng dẫn yêu cầu rõ ràng.',
+    heroHeadline: 'Một sổ cái duy nhất. Kiểm soát truy cập của gia đình. Lộ trình khiếu nại rõ ràng.',
+    heroSubheading: 'Ghi nhận tiền gửi ngân hàng, hợp đồng và giấy tờ nhà đất qua trò chuyện. Dán tem QR vật lý chống giả mạo, và đảm bảo di sản chỉ được mở khóa khi có sự phê duyệt tuân thủ độc lập kép.',
     badgeDemo: 'Phiên bản Doanh nghiệp JAPAC',
     tabs: {
       workspace: 'Sổ tài sản',
