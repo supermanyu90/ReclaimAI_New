@@ -62,10 +62,7 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
     return matchesType && matchesSearch;
   });
 
-  const totalWealth = assets.reduce(
-    (sum, a) => sum + (a.amounts.balance || a.amounts.insuranceCover || a.amounts.estimatedValue || 0),
-    0
-  );
+
 
   // Automated risk assessment calculation based on handover governance rules
   const evaluateAssetRisk = (asset: AssetItem) => {
@@ -113,121 +110,60 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Variation 3 Main Grid: Editorial Sidebar + Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Sidebar (Editorial Summary) */}
-        <aside className="lg:col-span-4 bg-[#f8f7f4] border border-[#1a1a1a]/15 rounded-xs p-8 space-y-8 shadow-xs">
-          {/* Headline & Big Num */}
-          <div className="pb-6 border-b border-[#1a1a1a]/10 space-y-2">
-            <h2 className="font-serif-display text-4xl lg:text-5xl font-semibold italic text-[#1a1a1a] tracking-tight leading-[0.95]">
-              Estate Summary
-            </h2>
-            <div className="pt-4">
-              <span className="font-mono-meta text-[11px] uppercase tracking-widest text-[#1a1a1a]/60 block mb-1">
-                {t.workspace.trackedWealth}
-              </span>
-              <div className="font-serif-display text-4xl lg:text-[2.75rem] font-semibold text-[#1a1a1a] tracking-tight">
-                {formatCurrency(totalWealth, 'INR')}
-              </div>
-            </div>
-          </div>
-
-          {/* Automated Risk Assessment Indicator Card */}
-          <div className="pb-6 border-b border-[#1a1a1a]/10 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="font-mono-meta text-[10px] uppercase tracking-widest text-[#1a1a1a]/65 block font-bold">
-                Automated Risk Assessment
-              </span>
-              <span
-                className={`px-2 py-0.5 text-[9px] font-mono-meta font-bold uppercase rounded-xs ${
-                  highRiskCount > 0
-                    ? 'bg-amber-100 text-[#b54708] border border-amber-300'
-                    : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                }`}
-              >
-                {highRiskCount > 0 ? `${highRiskCount} High Risk Assets` : 'Low Estate Risk'}
-              </span>
-            </div>
-            <p className="text-xs text-[#1a1a1a]/80 leading-relaxed font-normal">
-              Evaluated against 2-reviewer handover governance rules. {highRiskCount} assets lack sufficient nomination or document custody records.
-            </p>
-            <div className="grid grid-cols-2 gap-2 pt-1 font-mono-meta text-[11px]">
-              <div className="p-2.5 bg-white border border-[#1a1a1a]/10 rounded-xs">
-                <div className="text-[9px] uppercase text-[#b54708] font-bold">High Risk Gaps</div>
-                <div className="text-lg font-serif-display font-bold text-[#b54708]">{highRiskCount}</div>
-              </div>
-              <div className="p-2.5 bg-white border border-[#1a1a1a]/10 rounded-xs">
-                <div className="text-[9px] uppercase text-[#1a1a1a]/65 font-bold">Moderate / Verified</div>
-                <div className="text-lg font-serif-display font-bold text-[#1a1a1a]">
-                  {assets.length - highRiskCount}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Asset Distribution & Action */}
-          <div className="pb-6 border-b border-[#1a1a1a]/10 space-y-3">
-            <span className="font-mono-meta text-[10px] uppercase tracking-widest text-[#1a1a1a]/60 block">
-              Asset Distribution &amp; Governance
+      {/* Full-Width Clean Asset Portfolio Ledger */}
+      <div className="w-full bg-white border border-[#1a1a1a]/15 rounded-xs p-6 lg:p-8 space-y-6 shadow-xs">
+        {/* Top table metadata row & Global Actions */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-4 border-b border-[#1a1a1a]/10 gap-4">
+          <div>
+            <span className="font-mono-meta text-[10px] uppercase tracking-widest text-[#1a1a1a]/60">
+              Family Asset Portfolio — Master Ledger
             </span>
-            <p className="text-xs text-[#1a1a1a]/80 leading-relaxed font-normal">
-              {assets.length} recorded assets verified across JAPAC. {attentionItems.length} items currently require nomination verification or policy refresh.
-            </p>
-            <div className="pt-2 flex flex-col gap-2.5">
-              {onOpenVoice && (
-                <button
-                  onClick={onOpenVoice}
-                  className="w-full bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#f8f7f4] py-3 px-6 rounded-xs font-mono-meta text-xs uppercase tracking-widest font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2 group"
-                >
-                  <Mic className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  <span>Voice Concierge (Live 3.8)</span>
-                </button>
-              )}
-              <button
-                onClick={onOpenChat}
-                className="w-full bg-white hover:bg-[#f0eee9] text-[#1a1a1a] border border-[#1a1a1a]/20 py-2.5 px-4 rounded-xs font-mono-meta text-[11px] uppercase tracking-widest font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#4a5d4e]" />
-                <span>Text Legacy Chat</span>
-              </button>
-              <button
-                onClick={onOpenPassport}
-                className="w-full bg-white hover:bg-[#f0eee9] text-[#1a1a1a] border border-[#1a1a1a]/20 py-2.5 px-4 rounded-xs font-mono-meta text-[11px] uppercase tracking-widest font-semibold transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <FileText className="w-3.5 h-3.5 text-[#1a1a1a]/70" />
-                <span>View Asset Passport</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Integrity Callout */}
-          <div className="pt-1 space-y-2">
-            <span className="font-mono-meta text-[10px] uppercase tracking-widest text-[#b54708] font-bold block flex items-center gap-1.5">
-              <AlertTriangle className="w-3 h-3 text-[#b54708]" />
-              <span>Estate Integrity Notification</span>
-            </span>
-            <p className="text-xs text-[#b54708] italic leading-relaxed">
-              Term Life Policy nomination is listed as unknown; Kaveri Mutual Fund is unregistered. Update records with custodian institutions to prevent dispute.
-            </p>
-          </div>
-        </aside>
-
-        {/* Right Content Area (Clean White Table & Controls) */}
-        <div className="lg:col-span-8 bg-white border border-[#1a1a1a]/15 rounded-xs p-6 lg:p-8 space-y-6 shadow-xs">
-          {/* Top table metadata row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#1a1a1a]/10 gap-3">
-            <div>
-              <span className="font-mono-meta text-[10px] uppercase tracking-widest text-[#1a1a1a]/60">
-                Family Asset Portfolio — Ledger v2.4
-              </span>
-              <h3 className="font-serif-display text-2xl font-semibold text-[#1a1a1a] tracking-tight mt-0.5">
+            <div className="flex items-center gap-3 mt-1">
+              <h3 className="font-serif-display text-2xl lg:text-3xl font-semibold text-[#1a1a1a] tracking-tight">
                 {t.workspace.title}
               </h3>
+              <span className="font-mono-meta text-[11px] px-2.5 py-0.5 rounded-xs bg-[#f8f7f4] border border-[#1a1a1a]/15 text-[#1a1a1a]/70 font-semibold">
+                {filteredAssets.length} of {assets.length} Assets
+              </span>
             </div>
+          </div>
 
-            {/* Filter pills and Import/Export */}
-            <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono-meta">
-              <input type="file" id="import-assets" className="hidden" accept=".json" onChange={(e) => {
+          {/* Action Tools & Import/Export */}
+          <div className="flex flex-wrap items-center gap-2">
+            {onOpenVoice && (
+              <button
+                onClick={onOpenVoice}
+                className="px-3 py-1.5 rounded-xs bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#fdfcf8] font-mono-meta text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+              >
+                <Mic className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Voice Concierge</span>
+              </button>
+            )}
+            {onOpenChat && (
+              <button
+                onClick={onOpenChat}
+                className="px-3 py-1.5 rounded-xs bg-white hover:bg-[#f8f7f4] border border-[#1a1a1a]/20 text-[#1a1a1a] font-mono-meta text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#4a5d4e]" />
+                <span>Text Chat</span>
+              </button>
+            )}
+            {onOpenPassport && (
+              <button
+                onClick={onOpenPassport}
+                className="px-3 py-1.5 rounded-xs bg-white hover:bg-[#f8f7f4] border border-[#1a1a1a]/20 text-[#1a1a1a] font-mono-meta text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+              >
+                <FileText className="w-3.5 h-3.5 text-[#1a1a1a]/70" />
+                <span>Asset Passport</span>
+              </button>
+            )}
+
+            <input
+              type="file"
+              id="import-assets"
+              className="hidden"
+              accept=".json"
+              onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file && auth.currentUser) {
                   const reader = new FileReader();
@@ -248,33 +184,47 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
                   };
                   reader.readAsText(file);
                 }
-              }} />
-              <label htmlFor="import-assets" className="px-2.5 py-1 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/60 hover:text-[#1a1a1a] border border-[#1a1a1a]/10">Import</label>
-              <button onClick={() => {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assets));
+              }}
+            />
+            <label
+              htmlFor="import-assets"
+              className="px-2.5 py-1.5 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/70 hover:text-[#1a1a1a] border border-[#1a1a1a]/15 text-[11px] font-mono-meta font-semibold"
+            >
+              Import
+            </label>
+            <button
+              onClick={() => {
+                const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(assets));
                 const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "reclaimai_assets.json");
+                downloadAnchorNode.setAttribute('href', dataStr);
+                downloadAnchorNode.setAttribute('download', 'reclaimai_assets.json');
                 document.body.appendChild(downloadAnchorNode);
                 downloadAnchorNode.click();
                 downloadAnchorNode.remove();
-              }} className="px-2.5 py-1 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/60 hover:text-[#1a1a1a] border border-[#1a1a1a]/10">Export</button>
-
-              {['all', 'savings', 'fixed_deposit', 'mutual_fund', 'insurance', 'pension_cpf'].map((typeKey) => (
-                <button
-                  key={typeKey}
-                  onClick={() => setFilterType(typeKey)}
-                  className={`px-2.5 py-1 rounded-xs uppercase tracking-wider transition-colors cursor-pointer ${
-                    filterType === typeKey
-                      ? 'bg-[#1a1a1a] text-[#f8f7f4] font-semibold'
-                      : 'bg-[#f8f7f4] text-[#1a1a1a]/60 hover:text-[#1a1a1a] border border-[#1a1a1a]/10'
-                  }`}
-                >
-                  {typeKey.replace(/_/g, ' ')}
-                </button>
-              ))}
-            </div>
+              }}
+              className="px-2.5 py-1.5 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/70 hover:text-[#1a1a1a] border border-[#1a1a1a]/15 text-[11px] font-mono-meta font-semibold"
+            >
+              Export
+            </button>
           </div>
+        </div>
+
+        {/* Filter pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono-meta pb-1">
+          {['all', 'savings', 'fixed_deposit', 'mutual_fund', 'insurance', 'pension_cpf'].map((typeKey) => (
+            <button
+              key={typeKey}
+              onClick={() => setFilterType(typeKey)}
+              className={`px-3 py-1.5 rounded-xs uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap ${
+                filterType === typeKey
+                  ? 'bg-[#1a1a1a] text-[#f8f7f4] font-semibold'
+                  : 'bg-[#f8f7f4] text-[#1a1a1a]/60 hover:text-[#1a1a1a] border border-[#1a1a1a]/10'
+              }`}
+            >
+              {typeKey.replace(/_/g, ' ')}
+            </button>
+          ))}
+        </div>
 
           {/* Clean Ruled Table */}
           <div className="overflow-x-auto">
@@ -371,7 +321,6 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
             </table>
           </div>
         </div>
-      </div>
 
       {/* Controlled Family Visibility Preview */}
       <div className="bg-white border border-[#1a1a1a]/15 rounded-xs p-6 lg:p-8 space-y-4 shadow-xs">
