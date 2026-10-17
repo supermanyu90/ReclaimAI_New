@@ -17,12 +17,11 @@ import { translations } from '../i18n/translations';
 interface HeaderProps {
   currentLang: JapacLanguage;
   onSelectLang: (lang: JapacLanguage) => void;
-  activePersona: UserPersona;
-  personas: UserPersona[];
-  onSelectPersona: (persona: UserPersona) => void;
+  activePersona?: UserPersona;
+  personas?: UserPersona[];
+  onSelectPersona?: (persona: UserPersona) => void;
   activeTab: string;
   onSelectTab: (tab: string) => void;
-  onResetDemo: () => void;
   user: User | null;
   onSignIn: () => void;
   onSignOut: () => void;
@@ -30,8 +29,7 @@ interface HeaderProps {
   onSyncDemoToCloud?: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  appMode?: 'gateway' | 'demo' | 'auth';
-  onExitDemo?: () => void;
+  onOpenSlides?: () => void;
 }
 
 const LANGUAGE_LABELS: Record<JapacLanguage, { label: string; flag: string; region: string }> = {
@@ -49,12 +47,8 @@ const LANGUAGE_LABELS: Record<JapacLanguage, { label: string; flag: string; regi
 export const Header: React.FC<HeaderProps> = ({
   currentLang,
   onSelectLang,
-  activePersona,
-  personas,
-  onSelectPersona,
   activeTab,
   onSelectTab,
-  onResetDemo,
   user,
   onSignIn,
   onSignOut,
@@ -62,12 +56,10 @@ export const Header: React.FC<HeaderProps> = ({
   onSyncDemoToCloud,
   searchQuery,
   onSearchChange,
-  appMode,
-  onExitDemo,
+  onOpenSlides,
 }) => {
   const t = translations[currentLang] || translations.en;
   const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [personaMenuOpen, setPersonaMenuOpen] = useState(false);
   const [authMenuOpen, setAuthMenuOpen] = useState(false);
 
   const navItems = [
@@ -140,7 +132,6 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => {
                 setLangMenuOpen(!langMenuOpen);
-                setPersonaMenuOpen(false);
               }}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xs bg-white border border-[#1a1a1a]/15 text-[#1a1a1a] text-[11px] font-mono-meta uppercase tracking-wider hover:border-[#1a1a1a] transition-all cursor-pointer shadow-xs"
             >
@@ -188,62 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Persona Switcher */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setPersonaMenuOpen(!personaMenuOpen);
-                setLangMenuOpen(false);
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xs bg-white border border-[#1a1a1a]/15 text-[#1a1a1a] text-[11px] font-mono-meta uppercase tracking-wider hover:border-[#1a1a1a] transition-all cursor-pointer shadow-xs"
-            >
-              <span>{activePersona.avatar}</span>
-              <span className="hidden xl:inline">{activePersona.name}</span>
-              <ChevronDown className="w-3 h-3 text-[#1a1a1a]/50" />
-            </button>
 
-            {personaMenuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setPersonaMenuOpen(false)}
-                />
-                <div className="absolute right-0 mt-2 w-72 rounded-xs bg-white border border-[#1a1a1a] shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100 font-mono-meta">
-                  <div className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#1a1a1a]/50 border-b border-[#1a1a1a]/10">
-                    Switch Role / Persona
-                  </div>
-                  <div className="py-1">
-                    {personas.map((p) => {
-                      const isSelected = activePersona.id === p.id;
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => {
-                            onSelectPersona(p);
-                            setPersonaMenuOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-[#f8f7f4] transition-colors cursor-pointer ${
-                            isSelected ? 'bg-[#f0eee9] font-bold text-[#1a1a1a]' : 'text-[#1a1a1a]/80'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-base">{p.avatar}</span>
-                            <div>
-                              <div className="font-semibold">{p.name}</div>
-                              <div className="text-[10px] text-[#1a1a1a]/50">{p.badge}</div>
-                            </div>
-                          </div>
-                          <span className="text-[9px] uppercase px-1 py-0.2 border border-[#1a1a1a]/20">
-                            {p.role}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
 
           {/* Auth & Firestore Cloud Status */}
           {user ? (
@@ -252,7 +188,6 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => {
                   setAuthMenuOpen(!authMenuOpen);
                   setLangMenuOpen(false);
-                  setPersonaMenuOpen(false);
                 }}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xs bg-[#1a1a1a] text-[#f8f7f4] text-[11px] font-mono-meta hover:bg-[#2b2b2b] transition-all cursor-pointer shadow-xs"
               >
@@ -327,24 +262,23 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Exit Demo */}
-          {appMode === 'demo' && onExitDemo && (
-            <button
-              onClick={onExitDemo}
-              title="Exit Demo Mode"
-              className="px-3 py-1.5 rounded-xs bg-[#f4f7f4] border border-[#4a5d4e]/30 text-[#4a5d4e] hover:bg-[#4a5d4e] hover:text-white transition-all cursor-pointer font-mono-meta text-[11px] uppercase tracking-wider"
-            >
-              Exit Demo
-            </button>
-          )}
-
-          {/* Reset Demo */}
+          {/* How It Works Slides Button */}
           <button
-            onClick={onResetDemo}
-            title="Reset Demo State"
-            className="p-1.5 rounded-xs bg-white border border-[#1a1a1a]/15 hover:border-[#1a1a1a] text-[#1a1a1a]/60 hover:text-[#1a1a1a] transition-all cursor-pointer shadow-xs"
+            onClick={() => {
+              if (onOpenSlides) {
+                onOpenSlides();
+              } else {
+                onSelectTab('overview');
+                setTimeout(() => {
+                  document.getElementById('workflow-slides')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }
+            }}
+            title="View Interactive Workflow Slides"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xs bg-white border border-[#1a1a1a]/15 text-[#1a1a1a] hover:border-[#b4916c] hover:text-[#b4916c] text-[11px] font-mono-meta uppercase tracking-wider font-semibold transition-all cursor-pointer shadow-xs"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-[#b4916c]" />
+            <span className="hidden sm:inline">How It Works</span>
           </button>
         </div>
       </div>

@@ -35,8 +35,8 @@ import { AnalyticsView } from './components/AnalyticsView';
 import { DigitalAssetQrView } from './components/DigitalAssetQrView';
 import { HeroSection } from './components/HeroSection';
 import { VoiceConciergeView } from './components/VoiceConciergeView';
-import { AuthDemoGateway } from './components/AuthDemoGateway';
-import { StarBackground } from './components/StarBackground';
+import { WorkflowSlides } from './components/WorkflowSlides';
+import { CursorRing } from './components/CursorRing';
 import { translations } from './i18n/translations';
 import { triggerConfetti } from './utils/formatters';
 
@@ -45,26 +45,17 @@ export default function App() {
   const [activePersona, setActivePersona] = useState<UserPersona>(JAPAC_PERSONAS[0]);
   const [activeTab, setActiveTab] = useState<string>('overview');
 
-  const [assets, setAssets] = useState<AssetItem[]>([]);
-  const [nodes, setNodes] = useState<GraphNode[]>([]);
-  const [edges, setEdges] = useState<GraphEdge[]>([]);
+  const [assets, setAssets] = useState<AssetItem[]>(INITIAL_ASSETS);
+  const [nodes, setNodes] = useState<GraphNode[]>(INITIAL_GRAPH_NODES);
+  const [edges, setEdges] = useState<GraphEdge[]>(INITIAL_GRAPH_EDGES);
   const [handoverCase, setHandoverCase] = useState<HandoverCase>(INITIAL_HANDOVER_CASE);
   const [passportVersion, setPassportVersion] = useState<number>(1);
 
   // Firebase Auth and Cloud Sync state
   const [user, setUser] = useState<User | null>(null);
   const [cloudSynced, setCloudSynced] = useState<boolean>(false);
-  const [appMode, setAppMode] = useState<'gateway' | 'demo' | 'auth'>('gateway');
   const [authError, setAuthError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  useEffect(() => {
-    if (appMode === 'demo') {
-      setAssets(INITIAL_ASSETS);
-      setNodes(INITIAL_GRAPH_NODES);
-      setEdges(INITIAL_GRAPH_EDGES);
-    }
-  }, [appMode]);
 
   useEffect(() => {
     let unsubscribeAssets: (() => void) | null = null;
@@ -73,7 +64,6 @@ export default function App() {
       setUser(currentUser);
       if (currentUser) {
         setCloudSynced(true);
-        setAppMode('auth');
         setAuthError(null);
         await syncUserProfile(currentUser);
 
@@ -299,63 +289,50 @@ export default function App() {
     }));
   };
 
-  // Reset demo
-  const handleResetDemo = () => {
-    setAssets(INITIAL_ASSETS);
-    setNodes(INITIAL_GRAPH_NODES);
-    setEdges(INITIAL_GRAPH_EDGES);
-    setHandoverCase(INITIAL_HANDOVER_CASE);
-    setPassportVersion(1);
-    setActivePersona(JAPAC_PERSONAS[0]);
-    setActiveTab('overview');
-  };
-
   return (
-    <div className="min-h-screen bg-[#111113] text-[#F8F7F4] font-sans selection:bg-[#87a9ff] selection:text-[#111113] flex flex-col relative">
-      <StarBackground />
-      {appMode === 'gateway' && !user && (
-        <AuthDemoGateway
-          currentLang={currentLang}
-          onSelectMode={(mode) => setAppMode(mode)}
-          onSignIn={handleSignIn}
-          authError={authError}
-        />
-      )}
+    <div className="min-h-screen bg-[#fdfcf8] text-[#1a1a1a] font-sans selection:bg-[#b4916c] selection:text-white flex flex-col relative">
+      <CursorRing />
 
       {/* Top Header & Navigation */}
       <Header
         currentLang={currentLang}
         onSelectLang={setCurrentLang}
-        activePersona={activePersona}
-        personas={JAPAC_PERSONAS}
-        onSelectPersona={handleSelectPersona}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        onResetDemo={handleResetDemo}
         user={user}
         onSignIn={handleSignIn}
-        onSignOut={() => {
-          handleSignOut();
-          setAppMode('gateway');
-        }}
+        onSignOut={handleSignOut}
         isCloudSynced={cloudSynced}
         onSyncDemoToCloud={handleSyncDemoToCloud}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        appMode={appMode}
-        onExitDemo={() => setAppMode('gateway')}
+        onOpenSlides={() => {
+          setActiveTab('overview');
+          setTimeout(() => {
+            document.getElementById('workflow-slides')?.scrollIntoView({ behavior: 'smooth' });
+          }, 50);
+        }}
       />
 
       {/* Main View Area */}
       <main className="flex-1 w-full mx-auto">
         {activeTab === 'overview' && (
-          <div className="space-y-12">
+          <div className="space-y-8">
             <HeroSection
               currentLang={currentLang}
               onGetStarted={() => setActiveTab('workspace')}
               onExplorePassport={() => setActiveTab('passport')}
               onExploreQr={() => setActiveTab('qrvault')}
               onOpenVoice={() => setActiveTab('voice')}
+              onExploreSlides={() => {
+                document.getElementById('workflow-slides')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            />
+
+            {/* Application Workflow Slides Showcase */}
+            <WorkflowSlides
+              currentLang={currentLang}
+              onNavigateTab={setActiveTab}
             />
 
             {/* 3 Pillars Architectural Section */}
@@ -511,7 +488,13 @@ export default function App() {
         {activeTab === 'reviews' && (
           <ReviewerView
             currentLang={currentLang}
-            activePersona={activePersona}
+            activePersona={
+              activePersona.role === 'reviewer'
+                ? activePersona
+                : JAPAC_PERSONAS.find((p) => p.role === 'reviewer') || activePersona
+            }
+            onSelectPersona={setActivePersona}
+            availableReviewers={JAPAC_PERSONAS.filter((p) => p.role === 'reviewer')}
             handoverCase={handoverCase}
             onApprove={handleReviewerApprove}
             onHold={handleReviewerHold}

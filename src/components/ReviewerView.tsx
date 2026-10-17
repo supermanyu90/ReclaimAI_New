@@ -16,6 +16,8 @@ import { triggerConfetti } from '../utils/formatters';
 interface ReviewerViewProps {
   currentLang: JapacLanguage;
   activePersona: UserPersona;
+  onSelectPersona?: (persona: UserPersona) => void;
+  availableReviewers?: UserPersona[];
   handoverCase: HandoverCase;
   onApprove: (reviewerId: string, reviewerName: string) => void;
   onHold: (reason: string) => void;
@@ -25,6 +27,8 @@ interface ReviewerViewProps {
 export const ReviewerView: React.FC<ReviewerViewProps> = ({
   currentLang,
   activePersona,
+  onSelectPersona,
+  availableReviewers,
   handoverCase,
   onApprove,
   onHold,
@@ -75,16 +79,40 @@ export const ReviewerView: React.FC<ReviewerViewProps> = ({
           </p>
         </div>
 
-        {/* Current Reviewer Status Pill */}
-        <div className="flex items-center gap-2 bg-[#f8f7f4] px-3.5 py-2 rounded-xs border border-[#1a1a1a]/15 font-mono-meta text-xs">
-          <span className="text-[#1a1a1a]/50">Examiner:</span>
-          <span className="font-bold text-[#1a1a1a] flex items-center gap-1.5">
-            <span>{activePersona.avatar}</span>
-            <span>{activePersona.name}</span>
-          </span>
-          <span className="text-[9px] uppercase px-1 border border-[#1a1a1a]/20">
-            {activePersona.role}
-          </span>
+        {/* Current Reviewer Status Pill & Examiner Switcher */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-[#f8f7f4] px-3.5 py-2 rounded-xs border border-[#1a1a1a]/15 font-mono-meta text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-[#1a1a1a]/50">Examiner:</span>
+            <span className="font-bold text-[#1a1a1a] flex items-center gap-1.5">
+              <span>{activePersona.avatar}</span>
+              <span>{activePersona.name}</span>
+            </span>
+            <span className="text-[9px] uppercase px-1 border border-[#1a1a1a]/20">
+              {activePersona.role}
+            </span>
+          </div>
+
+          {availableReviewers && availableReviewers.length > 0 && onSelectPersona && (
+            <div className="flex items-center gap-1.5 sm:ml-3 sm:pl-3 sm:border-l border-[#1a1a1a]/15">
+              <span className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wider">Switch Key:</span>
+              {availableReviewers.map((rev) => {
+                const isCurrent = activePersona.id === rev.id;
+                return (
+                  <button
+                    key={rev.id}
+                    onClick={() => onSelectPersona(rev)}
+                    className={`px-2 py-0.5 rounded-xs text-[10px] transition-all cursor-pointer font-bold ${
+                      isCurrent
+                        ? 'bg-[#1a1a1a] text-[#f8f7f4]'
+                        : 'bg-white border border-[#1a1a1a]/20 text-[#1a1a1a]/70 hover:text-[#1a1a1a] hover:border-[#1a1a1a]'
+                    }`}
+                  >
+                    {rev.name.split(' ')[0]} ({rev.badge.includes('1') ? 'Key 1' : 'Key 2'})
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
