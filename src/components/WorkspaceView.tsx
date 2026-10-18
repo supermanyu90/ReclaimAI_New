@@ -14,14 +14,25 @@ import {
   QrCode,
   FileText,
   Mic,
+  Download,
+  FolderInput,
+  KeyRound,
+  ChevronDown,
 } from 'lucide-react';
 import { AssetItem, GraphEdge, GraphNode, JapacLanguage } from '../types';
 import { translations } from '../i18n/translations';
 import { RelationshipGraph } from './RelationshipGraph';
 import { AssetAuditTrailModal } from './AssetAuditTrailModal';
+import { ExportEncryptedBackupModal } from './ExportEncryptedBackupModal';
+import { DecryptRestoreModal } from './DecryptRestoreModal';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { auth } from '../lib/firebase';
 import { createFirestoreAsset } from '../lib/firestoreService';
+import {
+  isEncryptedBackupEnvelope,
+  EncryptedBackupEnvelope,
+  downloadJsonFile,
+} from '../utils/cryptoVault';
 
 interface WorkspaceViewProps {
   currentLang: JapacLanguage;
@@ -34,6 +45,8 @@ interface WorkspaceViewProps {
   onOpenVoice?: () => void;
   handoverReleased: boolean;
   searchQuery: string;
+  onRestoreAssets?: (restoredAssets: AssetItem[], mode: 'merge' | 'replace') => Promise<void> | void;
+  ownerName?: string;
 }
 
 export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
@@ -47,11 +60,82 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
   onOpenVoice,
   handoverReleased,
   searchQuery,
+  onRestoreAssets,
+  ownerName,
 }) => {
   const t = translations[currentLang] || translations.en;
   const [filterType, setFilterType] = useState<string>('all');
   const [selectedAsset, setSelectedAsset] = useState<AssetItem | null>(null);
   const [auditAsset, setAuditAsset] = useState<AssetItem | null>(null);
+
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isDecryptModalOpen, setIsDecryptModalOpen] = useState(false);
+  const [pendingEnvelope, setPendingEnvelope] = useState<EncryptedBackupEnvelope | null>(null);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: 'success' | 'error' | 'info';
+    text: string;
+  } | null>(null);
+
+  const handleExportPlainJson = () => {
+    const dateStr = new Date().toISOString().split('T')[0];
+    const dataStr = JSON.stringify(assets, null, 2);
+    downloadJsonFile(dataStr, `reclaimai_assets_unencrypted_${dateStr}.json`);
+    setExportMenuOpen(false);
+    setStatusMessage({
+      type: 'info',
+      text: `Exported ${assets.length} assets as raw unencrypted JSON.`,
+    });
+    setTimeout(() => setStatusMessage(null), 4000);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const content = event.target?.result as string;
+      try {
+        const parsed = JSON.parse(content);
+        if (isEncryptedBackupEnvelope(parsed)) {
+          setPendingEnvelope(parsed);
+          setIsDecryptModalOpen(true);
+        } else if (Array.isArray(parsed)) {
+          if (onRestoreAssets) {
+            await onRestoreAssets(parsed, 'merge');
+          } else if (auth.currentUser) {
+            for (const asset of parsed) {
+              if (asset.label && asset.institutionName) {
+                await createFirestoreAsset(asset, auth.currentUser.uid);
+              }
+            }
+          }
+          setStatusMessage({
+            type: 'success',
+            text: `Successfully imported ${parsed.length} asset records.`,
+          });
+          setTimeout(() => setStatusMessage(null), 4000);
+        } else {
+          setStatusMessage({
+            type: 'error',
+            text: 'Unrecognized file format. Please upload a valid ReclaimAI backup file.',
+          });
+          setTimeout(() => setStatusMessage(null), 5000);
+        }
+      } catch (err: any) {
+        console.error('File import error:', err);
+        setStatusMessage({
+          type: 'error',
+          text: 'Failed to read file. Please ensure it is valid JSON.',
+        });
+        setTimeout(() => setStatusMessage(null), 5000);
+      } finally {
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const filteredAssets = assets.filter((a) => {
     const matchesType = filterType === 'all' || a.assetType === filterType;
@@ -158,56 +242,99 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
               </button>
             )}
 
+            {/* Encrypted Export Dropdown */}
+            <div className="relative">
+              <div className="inline-flex rounded-xs border border-[#1a1a1a]/20 shadow-xs overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setIsExportModalOpen(true)}
+                  className="px-3 py-1.5 bg-[#1a1a1a] hover:bg-[#2b2b2b] text-[#fdfcf8] font-mono-meta text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+                  title="Export asset registry as an encrypted JSON backup"
+                >
+                  <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Export Backup</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                  className="px-1.5 py-1.5 bg-[#2b2b2b] hover:bg-[#383838] text-white border-l border-white/20 cursor-pointer flex items-center justify-center"
+                  aria-label="More export options"
+                >
+                  <ChevronDown className="w-3 h-3 text-white/80" />
+                </button>
+              </div>
+
+              {exportMenuOpen && (
+                <div className="absolute right-0 mt-1 w-64 bg-white border border-[#1a1a1a]/20 rounded-xs shadow-lg z-30 py-1 font-mono-meta text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExportMenuOpen(false);
+                      setIsExportModalOpen(true);
+                    }}
+                    className="w-full px-3 py-2 text-left hover:bg-[#f8f7f4] flex items-start gap-2 cursor-pointer text-[#1a1a1a]"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-xs">Encrypted Vault (AES-256)</div>
+                      <div className="text-[10px] text-[#1a1a1a]/60">Zero-knowledge local backup (Recommended)</div>
+                    </div>
+                  </button>
+                  <div className="border-t border-[#1a1a1a]/10 my-1" />
+                  <button
+                    type="button"
+                    onClick={handleExportPlainJson}
+                    className="w-full px-3 py-2 text-left hover:bg-[#f8f7f4] flex items-start gap-2 cursor-pointer text-[#1a1a1a]/80 hover:text-[#1a1a1a]"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#1a1a1a]/60 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-xs">Plain JSON File</div>
+                      <div className="text-[10px] text-[#1a1a1a]/50">Unencrypted raw data</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Import / Restore */}
             <input
               type="file"
               id="import-assets"
               className="hidden"
-              accept=".json"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file && auth.currentUser) {
-                  const reader = new FileReader();
-                  reader.onload = async (event) => {
-                    const content = event.target?.result as string;
-                    try {
-                      const importedAssets = JSON.parse(content);
-                      for (const asset of importedAssets) {
-                        if (asset.label && asset.institutionName) {
-                          await createFirestoreAsset(asset, auth.currentUser!.uid);
-                        }
-                      }
-                      alert('Assets imported successfully!');
-                    } catch (err) {
-                      console.error('Import error:', err);
-                      alert('Failed to import assets. Please check the JSON format.');
-                    }
-                  };
-                  reader.readAsText(file);
-                }
-              }}
+              accept=".json,.txt"
+              onChange={handleFileUpload}
             />
             <label
               htmlFor="import-assets"
-              className="px-2.5 py-1.5 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/70 hover:text-[#1a1a1a] border border-[#1a1a1a]/15 text-[11px] font-mono-meta font-semibold"
+              className="px-3 py-1.5 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a] hover:bg-[#eae7df] border border-[#1a1a1a]/20 text-[11px] font-mono-meta font-semibold flex items-center gap-1.5 shadow-xs"
+              title="Import or restore from an encrypted or plain JSON backup"
             >
-              Import
+              <FolderInput className="w-3.5 h-3.5 text-[#4a5d4e]" />
+              <span>Import / Restore</span>
             </label>
-            <button
-              onClick={() => {
-                const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(assets));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute('href', dataStr);
-                downloadAnchorNode.setAttribute('download', 'reclaimai_assets.json');
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-              }}
-              className="px-2.5 py-1.5 rounded-xs uppercase tracking-wider transition-colors cursor-pointer bg-[#f8f7f4] text-[#1a1a1a]/70 hover:text-[#1a1a1a] border border-[#1a1a1a]/15 text-[11px] font-mono-meta font-semibold"
-            >
-              Export
-            </button>
           </div>
         </div>
+
+        {/* Status notification banner */}
+        {statusMessage && (
+          <div
+            className={`p-3 rounded-xs border text-xs font-mono-meta flex items-center justify-between gap-2 animate-in fade-in ${
+              statusMessage.type === 'success'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                : statusMessage.type === 'error'
+                ? 'bg-rose-50 border-rose-300 text-rose-900'
+                : 'bg-blue-50 border-blue-300 text-blue-900'
+            }`}
+          >
+            <span>{statusMessage.text}</span>
+            <button
+              onClick={() => setStatusMessage(null)}
+              className="text-[#1a1a1a]/50 hover:text-[#1a1a1a] cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Filter pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono-meta pb-1">
@@ -503,6 +630,42 @@ export const WorkspaceView: React.FC<WorkspaceViewProps> = ({
           onOpenQr={onOpenQr}
         />
       )}
+
+      {/* Export Encrypted Backup Modal */}
+      <ExportEncryptedBackupModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        assets={assets}
+        currentLang={currentLang}
+        ownerName={ownerName}
+      />
+
+      {/* Decrypt & Restore Modal */}
+      <DecryptRestoreModal
+        isOpen={isDecryptModalOpen}
+        onClose={() => {
+          setIsDecryptModalOpen(false);
+          setPendingEnvelope(null);
+        }}
+        envelope={pendingEnvelope}
+        onRestore={async (restoredAssets, mode) => {
+          if (onRestoreAssets) {
+            await onRestoreAssets(restoredAssets, mode);
+          } else if (auth.currentUser) {
+            for (const asset of restoredAssets) {
+              if (asset.label && asset.institutionName) {
+                await createFirestoreAsset(asset, auth.currentUser.uid);
+              }
+            }
+          }
+          setStatusMessage({
+            type: 'success',
+            text: `Successfully restored ${restoredAssets.length} asset records into your vault.`,
+          });
+          setTimeout(() => setStatusMessage(null), 5000);
+        }}
+        currentLang={currentLang}
+      />
     </div>
   );
 };

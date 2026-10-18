@@ -184,6 +184,36 @@ export default function App() {
     setEdges((prev) => [...prev, newEdgeOwner, newEdgeInst]);
   };
 
+  // Restore assets from encrypted or plain backup
+  const handleRestoreAssets = async (restoredAssets: AssetItem[], mode: 'merge' | 'replace') => {
+    if (mode === 'replace') {
+      setAssets(restoredAssets);
+      if (user) {
+        try {
+          await seedDemoAssetsToFirestore(user.uid, restoredAssets);
+        } catch (err) {
+          console.error('Failed to sync restored assets to Firestore:', err);
+        }
+      }
+    } else {
+      setAssets((prev) => {
+        const existingIds = new Set(prev.map((a) => a.id));
+        const newOnes = restoredAssets.filter((a) => !existingIds.has(a.id));
+        return [...newOnes, ...prev];
+      });
+      if (user) {
+        try {
+          for (const a of restoredAssets) {
+            await createFirestoreAsset(a, user.uid);
+          }
+        } catch (err) {
+          console.error('Failed to merge assets to Firestore:', err);
+        }
+      }
+    }
+    setPassportVersion((prev) => prev + 1);
+  };
+
   // Family member initiates handover request
   const handleRequestHandover = (docType: 'clean' | 'mismatch') => {
     const isMismatch = docType === 'mismatch';
@@ -435,6 +465,8 @@ export default function App() {
             onOpenVoice={() => setActiveTab('voice')}
             handoverReleased={isReleased}
             searchQuery={searchQuery}
+            onRestoreAssets={handleRestoreAssets}
+            ownerName={user?.displayName || activePersona.name}
           />
         )}
 

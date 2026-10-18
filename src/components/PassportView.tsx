@@ -14,6 +14,7 @@ import {
 import { AssetItem, JapacLanguage } from '../types';
 import { translations } from '../i18n/translations';
 import { formatCurrency, formatDate } from '../utils/formatters';
+import { ExportEncryptedBackupModal } from './ExportEncryptedBackupModal';
 
 interface PassportViewProps {
   currentLang: JapacLanguage;
@@ -32,6 +33,7 @@ export const PassportView: React.FC<PassportViewProps> = ({
 }) => {
   const t = translations[currentLang] || translations.en;
   const [audience, setAudience] = useState<'master' | 'family'>('master');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const displayedAssets =
     audience === 'master'
@@ -100,6 +102,16 @@ export const PassportView: React.FC<PassportViewProps> = ({
               )}
             </button>
           </div>
+
+          {/* Encrypted Backup Button */}
+          <button
+            onClick={() => setIsExportModalOpen(true)}
+            className="px-4 py-2 rounded-xs bg-white hover:bg-[#f8f7f4] border border-[#1a1a1a]/25 text-[#1a1a1a] text-[11px] font-mono-meta uppercase tracking-widest font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0 shadow-xs"
+            title="Download client-side AES-256-GCM encrypted backup of your asset registry"
+          >
+            <Lock className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Encrypted Backup</span>
+          </button>
 
           {/* Print PDF Button */}
           <button
@@ -283,6 +295,15 @@ export const PassportView: React.FC<PassportViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Export Encrypted Backup Modal */}
+      <ExportEncryptedBackupModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        assets={assets}
+        currentLang={currentLang}
+        ownerName={ownerName}
+      />
     </div>
   );
 };
