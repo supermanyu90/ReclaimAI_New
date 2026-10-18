@@ -1,166 +1,115 @@
 # ReclaimAI — Financial Legacy & Handover Platform
 
-> Conversation-first financial legacy platform across JAPAC: **Prepare**, **Handover**, and **Recover** — with Family Asset Passports and multi-party review governance.
+**Google Cloud AI Builder Cup 2026 · Theme: BFSI — Intelligent Risk, Fraud & Financial Experiences**
 
 **Live demo:** https://reclaimai-795857022881.asia-southeast1.run.app/
+**Health check:** `/api/health`
+
+> Prototype. All people, institutions, balances and registry records in the demo are fictional.
+> Do not enter real account numbers or personal data. ReclaimAI does not give legal, financial or estate-planning advice.
 
 ---
 
 ## The problem
 
-When a person dies, their family often doesn't know what they owned, where the papers are, or who the nominee is. Deposits go dormant, claims stall over a misspelled name on a certificate, and money eventually drifts into unclaimed-deposit registries. Each country has its own claim rules, thresholds and paperwork.
+When someone dies or becomes incapacitated, their family often does not know which accounts, deposits, policies, lockers or pensions exist, where the papers are kept, or who the nominee is. Money ends up dormant and is eventually moved to central unclaimed-deposit funds: in India, the RBI's Depositor Education and Awareness (DEA) Fund held about ₹78,000 crore of unclaimed deposits as of March 2024, which is why the RBI built the UDGAM portal. Singapore, Japan and Korea have similar dormant-account regimes.
 
-ReclaimAI is a prototype of a single place to:
+The gap is not only search. It is that nobody kept a record while the owner was alive, and there is no safe, governed way to hand that record to the family later.
 
-1. **Prepare** — catalogue every asset while you're alive, by talking to it.
-2. **Handover** — let a family member claim assets through a governed, multi-reviewer release.
-3. **Recover** — help heirs find dormant or unclaimed balances.
+## The solution — three stages
 
----
-
-## Features
-
-| Module | What it does |
+| Stage | What happens |
 |---|---|
-| **Workspace** | Asset ledger: fixed deposits, savings, mutual funds, insurance, CPF/EPF, real estate, equities, gold lockers. Tracks nomination status, verification state, document location and per-field evidence with confidence scores. |
-| **Voice Concierge** | Real-time voice conversation via the **Gemini Live API**. Describe an asset aloud and it is captured as a structured record through tool calling. Supports English, Hindi, Japanese, Chinese (Simplified & Traditional), Korean, Indonesian, Thai and Vietnamese. |
-| **Legacy Chat** | Text-based guided asset capture with document attachment previews. |
-| **Relationship Graph** | Visual map linking owner, assets, institutions, people and documents. |
-| **Family Asset Passport** | Printable summary in three audiences: owner master, family-scoped and reviewer audit. |
-| **Digital Asset QR** | Printable QR tags for passbooks, deposit folders, lockers and deeds. |
-| **Reviewer Console** | Dual-authorization handover review: approve, hold, resume or reject, with an audit log. Demo includes a death-certificate name mismatch to exercise the hold flow. |
-| **Claims Guides** | Per-institution claim steps (with and without nominee), each citing its legal basis — India, Singapore, Japan and South Korea. |
-| **Recovery** | Search a registry of dormant/unclaimed balances with match confidence scores. |
-| **Analytics** | Nomination gaps, unknown nominees and stale documents. |
-| **Personas** | Switch between Owner, Family and Reviewer to experience each role. |
+| **1. Prepare** | The owner describes assets by **voice**, in their own language. Gemini turns the conversation into structured records: institution, type, amount, nominee and where the papers are physically kept. |
+| **2. Handover** | The family sees only emergency contacts and document locations. Balances are released only after **two independent reviewers** approve the death or incapacity evidence. |
+| **3. Recover** | Heirs search registry data for dormant balances and get a per-institution claim checklist for India, Singapore, Japan and South Korea. |
 
----
+## How Gemini is used
 
-## Architecture
+**Voice Concierge (live).** The browser streams audio to an Express server, which relays it over WebSocket to the **Gemini Live API** (`@google/genai`).
+- Gemini replies in audio and uses **function calling** to create asset records.
+- Each record is saved straight into the shared ledger.
+- It works in eight languages, including English, Hindi, Japanese, Korean and Thai.
+- The tool schema tells the model to leave a field empty when the user did not state it, rather than guess.
 
+The voice panel also accepts typed prompts, which go through the same Live session and tool call.
+
+```mermaid
+flowchart LR
+  U[Owner / Family / Reviewer] -->|voice or text| FE[React 19 + Vite frontend]
+  FE <-->|WebSocket| BE[Express relay · server.ts<br/>Cloud Run asia-southeast1]
+  BE <-->|Live API + function calling| G[Gemini Live]
+  FE <-->|Google sign-in| FA[Firebase Auth]
+  FE <-->|owner-scoped rules| FS[(Cloud Firestore<br/>users / assets / handoverCases)]
+  FE --> P[Asset Passport · QR tags · Claim guides]
 ```
-Browser (React 19 + Vite + Tailwind)
-   │
-   ├── Firebase Auth (Google sign-in)
-   ├── Firestore  ── users/, assets/, handoverCases/
-   │
-   └── WebSocket /live
-          │
-       Express server (server.ts)
-          │
-       Gemini Live API  ── audio in/out + createAssetRecord tool
-```
+
+## What is real vs. demo
+
+Being explicit so judges can verify everything we claim.
+
+| Feature | Status |
+|---|---|
+| Voice Concierge (Gemini Live, audio, function calling, multilingual) | **Live** |
+| Typed prompts in the Voice panel → same Gemini tool call | **Live** |
+| Google sign-in + Firestore persistence (owner-scoped security rules) | **Live** (signed-in users) |
+| Deployment on Google Cloud Run | **Live** |
+| Workspace ledger, relationship graph, Family Portal, Asset Passport (3 audiences) | **Working UI**, on demo data |
+| Dual-reviewer console (two keys, hold/resume/reject, audit trail) | **Working in the browser**; the case is not yet stored on the server |
+| Legacy Chat (text tab) | **Scripted demo.** For live extraction, use the Voice panel's text box |
+| Dormant-asset recovery | **Synthetic registry stand-ins**; match scores are preset demo values |
+| Claim guides (IN / SG / JP / KR) | Curated checklists; **may be incomplete or out of date** |
+| Passport "seal" | **Placeholder string**, not a real cryptographic hash |
+| QR tags | Base64-encoded JSON, **not encrypted or signed** |
+| Analytics & audit stream | **Illustrative**. No BigQuery or Pub/Sub pipeline exists yet |
+
+## Tech stack
 
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4, Motion, lucide-react, qrcode.react
-- **Backend:** Express + `ws` WebSocket relay (`server.ts`), serving the Vite app in dev and `dist/` in production
-- **AI:** `@google/genai` — Gemini Live with audio responses and function calling
-- **Data:** Firebase Auth + Cloud Firestore with default-deny, owner-scoped security rules (`firestore.rules`)
-- **Hosting:** Google Cloud Run (asia-southeast1); scaffolded in Google AI Studio
+- **Backend:** Express + `ws` WebSocket relay (`server.ts`)
+- **AI:** Gemini Live API via `@google/genai` (audio responses, function calling)
+- **Google Cloud / Firebase:** Cloud Run (asia-southeast1), Firebase Authentication, Cloud Firestore
+- Scaffolded in Google AI Studio from the `google-gemini/aistudio-repository-template`
 
-### Project structure
+## Run locally
 
-```
-├── server.ts                  # Express + WebSocket relay to Gemini Live
-├── firestore.rules            # Firestore security rules
-├── firebase-blueprint.json    # Data model (User, Asset, HandoverCase)
-├── firebase-applet-config.json
-└── src/
-    ├── App.tsx                # Shell, tabs, personas, auth
-    ├── components/            # One view per module (Workspace, Reviewer, Claims, ...)
-    ├── data/demoData.ts       # Demo assets, personas, claim guides, registry
-    ├── i18n/translations.ts   # JAPAC translations
-    ├── lib/                   # Firebase init + Firestore service
-    ├── types/index.ts         # Domain types
-    └── utils/formatters.ts    # Currency formatting, hashing, confetti
-```
-
----
-
-## Getting started
-
-### Prerequisites
-
-- Node.js 20+ (or Bun)
-- A **Gemini API key** — https://aistudio.google.com/apikey
-- A Firebase project with **Authentication (Google provider)** and **Cloud Firestore** enabled
-
-### Setup
+Prerequisites: Node.js 20+, a Gemini API key, a Firebase project with Google sign-in and Firestore enabled.
 
 ```bash
 git clone https://github.com/supermanyu90/ReclaimAI_New.git
 cd ReclaimAI_New
 npm install
-cp .env.example .env
+cp .env.example .env        # add GEMINI_API_KEY
+# replace firebase-applet-config.json with your own Firebase web config
+npm run dev
 ```
 
-Edit `.env`:
+Check `GET /api/health`. It should return `"apiKeyConfigured": true`.
 
-```env
-GEMINI_API_KEY="your-gemini-api-key"
-APP_URL="http://localhost:3000"
-```
+## Repository map
 
-Replace the values in `firebase-applet-config.json` with your own Firebase web app config, then deploy the rules:
-
-```bash
-firebase deploy --only firestore:rules
-```
-
-### Run
-
-```bash
-npm run dev        # http://localhost:3000
-```
-
-### Production
-
-```bash
-npm run build
-NODE_ENV=production npm start
-```
-
-Health check: `GET /api/health` reports whether the Gemini key is configured.
-
----
-
-## Prototype status
-
-ReclaimAI is a **demonstration prototype**. Be clear about what is live and what is simulated before showing it to stakeholders:
-
-| Component | Status |
+| Path | Purpose |
 |---|---|
-| Voice Concierge (Gemini Live + tool calling) | ✅ Live |
-| Google sign-in and asset sync to Firestore | ✅ Live |
-| Text Legacy Chat | 🟡 Scripted responses for demo prompts |
-| Passport SHA-256 seal | 🟡 Placeholder value (hash helper exists, not yet wired) |
-| QR payload | 🟡 Base64-encoded JSON — **not encrypted** |
-| Recovery match scores | 🟡 Pre-set demo values |
-| Handover / reviewer workflow | 🟡 In-memory only; not persisted |
-| Institutions, people, registry records | 🟡 Fictional demo data |
-
-**Do not enter real account numbers or personal data** into the demo.
-
----
+| `server.ts` | Express server and WebSocket relay to Gemini Live |
+| `src/App.tsx` | App shell, navigation, personas, auth |
+| `src/components/` | One view per module (Voice, Workspace, Passport, QR, Reviewers, Claims, Recovery, Analytics) |
+| `src/data/demoData.ts` | Fictional demo portfolio |
+| `src/i18n/translations.ts` | UI translations |
+| `firestore.rules`, `firebase-blueprint.json` | Firestore security rules and data model |
 
 ## Roadmap
 
-- [ ] Real SHA-256 passport seal over canonical asset JSON
-- [ ] QR tags carrying only an opaque token; details revealed after authentication
-- [ ] Confirm voice-created assets to Gemini only after the Firestore write succeeds
-- [ ] Persist handover cases with reviewer-scoped Firestore rules (server-enforced dual approval)
-- [ ] Align the Firestore schema (`amountMinor`) with frontend types (`amounts.balance`)
-- [ ] Real recovery matching: fuzzy name match, PIN code, date of birth and dormancy weighting
-- [ ] LLM-backed text chat with document extraction
-- [ ] Legacy-readiness score from nomination gaps and document freshness
+1. Route the text chat through the same Gemini function-calling path as voice.
+2. Store handover cases in Firestore, with dual approval enforced on the server.
+3. Replace the placeholder seal with a real SHA-256 hash of the ledger snapshot, and use opaque QR tokens.
+4. Gemini document extraction (deposit receipts, policy schedules) with per-field confidence and "not found" handling.
+5. Real registry matching once partner data access exists; an evaluation set for extraction accuracy.
+6. Audit events exported to BigQuery.
 
----
+## Team
 
-## Disclaimer
-
-ReclaimAI does not provide legal, financial or estate-planning advice. Claim rules and legal citations are illustrative and may be incomplete or out of date — always confirm with the institution or a qualified professional.
-
----
+Built for the Google Cloud AI Builder Cup 2026 (Hack2skill).
 
 ## License
 
-No license specified yet. All rights reserved by the author until one is added.
+MIT — see [LICENSE](LICENSE).
